@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-certificate me-2"></i>证书展示
+        </h2>
+
+        {% if certificates %}
+            {% for cert in certificates %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3 mb-md-0">
+                                {% if cert.image_filename %}
+                                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20certificate%20document%20with%20gold%20seal%20and%20official%20stamps%20elegant%20design&image_size=portrait_4_3" 
+                                         class="img-fluid rounded shadow" alt="{{ cert.title }}"
+                                         style="max-height: 180px; width: 100%; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                         style="height: 180px;">
+                                        <i class="fas fa-certificate fa-3x text-warning opacity-50"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-9">
+                                <h5 class="text-primary mb-1">{{ cert.title }}</h5>
+                                <p class="mb-2">
+                                    <i class="fas fa-building text-secondary me-2"></i>
+                                    <strong>{{ cert.issuer }}</strong>
+                                </p>
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar-check text-success me-1"></i>
+                                            颁发日期: {{ cert.issue_date.strftime('%Y年%m月%d日') }}
+                                        </small>
+                                    </div>
+                                    {% if cert.expiry_date %}
+                                    <div class="col-md-6">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar-times text-danger me-1"></i>
+                                            有效期至: {{ cert.expiry_date.strftime('%Y年%m月%d日') }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% if cert.credential_id %}
+                                    <p class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-id-badge me-1"></i>
+                                            证书编号: {{ cert.credential_id }}
+                                        </small>
+                                    </p>
+                                {% endif %}
+                                {% if cert.description %}
+                                    <p class="text-muted mb-2">{{ cert.description }}</p>
+                                {% endif %}
+                                {% if cert.credential_url %}
+                                    <a href="{{ cert.credential_url }}" target="_blank" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-external-link-alt me-1"></i>查看证书
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                暂无证书展示，请稍后再查看。
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

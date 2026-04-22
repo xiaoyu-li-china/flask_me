@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-project-diagram me-2"></i>项目展示
+        </h2>
+
+        {% if projects %}
+            <div class="row">
+            {% for project in projects %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        {% if project.image_filename %}
+                            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=modern%20software%20project%20dashboard%20interface%20with%20code%20snippets%20and%20data%20visualization%20charts%20professional%20tech%20style&image_size=landscape_4_3" 
+                                 class="card-img-top" alt="{{ project.title }}" 
+                                 style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-code fa-4x text-primary opacity-50"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">{{ project.title }}</h5>
+                            <p class="card-text text-muted small" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ project.description }}
+                            </p>
+                            {% if project.tech_stack %}
+                                <div class="mb-3">
+                                    <small class="text-muted"><strong>技术栈:</strong></small><br>
+                                    {% for tech in project.tech_stack.split(', ') %}
+                                        <span class="badge bg-secondary me-1 mb-1">{{ tech }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex gap-2">
+                                {% if project.project_url %}
+                                    <a href="{{ project.project_url }}" target="_blank" 
+                                       class="btn btn-primary btn-sm flex-grow-1">
+                                        <i class="fas fa-external-link-alt me-1"></i>访问项目
+                                    </a>
+                                {% endif %}
+                                {% if project.github_url %}
+                                    <a href="{{ project.github_url }}" target="_blank" 
+                                       class="btn btn-dark btn-sm flex-grow-1">
+                                        <i class="fab fa-github me-1"></i>GitHub
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                暂无项目展示，请稍后再查看。
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-trophy me-2"></i>成果展示
+        </h2>
+
+        {% if achievements %}
+            <div class="timeline">
+            {% for achievement in achievements %}
+                <div class="timeline-item mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    {% if achievement.image_filename %}
+                                        <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=achievement%20award%20trophy%20with%20gold%20medal%20celebration%20moment%20professional%20recognition&image_size=square_hd" 
+                                             class="img-fluid rounded shadow" alt="{{ achievement.title }}"
+                                             style="max-height: 150px; width: 100%; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                             style="height: 150px;">
+                                            <i class="fas fa-trophy fa-3x text-warning opacity-50"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h5 class="text-primary mb-0">{{ achievement.title }}</h5>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ achievement.date.strftime('%Y年%m月') }}
+                                        </span>
+                                    </div>
+                                    {% if achievement.organization %}
+                                        <p class="mb-2">
+                                            <i class="fas fa-building text-secondary me-2"></i>
+                                            <strong>{{ achievement.organization }}</strong>
+                                        </p>
+                                    {% endif %}
+                                    <p class="text-muted mb-0">{{ achievement.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                暂无成果展示，请稍后再查看。
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

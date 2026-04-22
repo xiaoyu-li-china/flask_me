@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white text-center py-4">
+                <div class="profile-avatar mx-auto mb-3">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20portrait%20photo%20of%20a%20confident%20software%20engineer%20in%20business%20casual%20attire%20with%20modern%20office%20background&image_size=square_hd" 
+                         alt="头像" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                </div>
+                <h1 class="display-4 mb-2">张三</h1>
+                <p class="lead mb-0">全栈开发工程师 | 技术架构师</p>
+            </div>
+            <div class="card-body p-5">
+                <section class="mb-5">
+                    <h3 class="text-primary mb-3">
+                        <i class="fas fa-user me-2"></i>个人简介
+                    </h3>
+                    <p class="lead text-secondary">
+                        拥有8年软件开发经验的全栈工程师，专注于Web应用开发和系统架构设计。
+                        热爱技术，乐于分享，致力于用技术创造价值。
+                    </p>
+                </section>
+
+                <section class="mb-5">
+                    <h3 class="text-primary mb-3">
+                        <i class="fas fa-code me-2"></i>技术栈
+                    </h3>
+                    <div class="row g-2">
+                        <div class="col-auto">
+                            <span class="badge bg-primary fs-6 px-3 py-2">Python</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-primary fs-6 px-3 py-2">Flask</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-primary fs-6 px-3 py-2">Django</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-success fs-6 px-3 py-2">JavaScript</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-success fs-6 px-3 py-2">Vue.js</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-success fs-6 px-3 py-2">React</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-info fs-6 px-3 py-2">MySQL</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-info fs-6 px-3 py-2">PostgreSQL</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-info fs-6 px-3 py-2">MongoDB</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">Docker</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">Kubernetes</span>
+                        </div>
+                        <div class="col-auto">
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">AWS</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-5">
+                    <h3 class="text-primary mb-3">
+                        <i class="fas fa-briefcase me-2"></i>职业亮点
+                    </h3>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-users text-primary fa-3x mb-3"></i>
+                                    <h5>团队管理</h5>
+                                    <p class="text-muted mb-0">带领10人技术团队，高效交付项目</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-rocket text-success fa-3x mb-3"></i>
+                                    <h5>项目交付</h5>
+                                    <p class="text-muted mb-0">成功交付50+商业项目，客户满意度100%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-lightbulb text-warning fa-3x mb-3"></i>
+                                    <h5>技术创新</h5>
+                                    <p class="text-muted mb-0">持续学习新技术，保持行业领先</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-primary mb-3">
+                        <i class="fas fa-envelope me-2"></i>联系方式
+                    </h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <p class="mb-1">
+                                <i class="fas fa-envelope text-primary me-2"></i>
+                                <strong>邮箱:</strong> zhangsan@example.com
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <p class="mb-1">
+                                <i class="fas fa-phone text-primary me-2"></i>
+                                <strong>电话:</strong> +86 138-0000-0000
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <p class="mb-1">
+                                <i class="fab fa-github text-primary me-2"></i>
+                                <strong>GitHub:</strong> github.com/zhangsan
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <p class="mb-1">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <strong>城市:</strong> 北京市
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        {% if not current_user.is_authenticated %}
+        <div class="alert alert-info mt-4 text-center" role="alert">
+            <i class="fas fa-lock me-2"></i>
+            登录后可查看完整简历、项目展示、证书和成果信息
+            <a href="{{ url_for('auth.login') }}" class="alert-link ms-2">
+                <i class="fas fa-sign-in-alt me-1"></i>立即登录
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

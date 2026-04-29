@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>性能测试与优化策略
+        </h2>
+
+        <div class="alert alert-info mb-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>性能测试概述：</strong>区块链交易系统对性能要求极高。以下是性能测试用例、注意点和优化策略的详细说明。
+        </div>
+
+        {% if test_cases %}
+            <div class="row">
+            {% for test in test_cases %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        <div class="card-header bg-transparent border-bottom">
+                            <span class="badge bg-warning">
+                                <i class="fas fa-tag me-1"></i>{{ test.category or '未分类' }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">
+                                <a href="{{ url_for('main.performance_test_detail', test_id=test.id) }}" 
+                                   class="text-decoration-none">
+                                    {{ test.title }}
+                                </a>
+                            </h5>
+                            {% if test.description %}
+                            <p class="card-text text-muted small" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ test.description }}
+                            </p>
+                            {% endif %}
+                            {% if test.test_objective %}
+                            <div class="mt-2">
+                                <small class="text-muted"><strong>测试目标：</strong></small><br>
+                                <small class="text-info" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    {{ test.test_objective }}
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <a href="{{ url_for('main.performance_test_detail', test_id=test.id) }}" 
+                               class="btn btn-warning btn-sm w-100">
+                                <i class="fas fa-eye me-1"></i>查看详情
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                暂无性能测试案例，请稍后再查看。
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{{ url_for('main.blockchain_tests') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-1"></i>返回测试案例库
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

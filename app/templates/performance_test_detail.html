@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.blockchain_tests') }}">
+                        <i class="fas fa-link me-1"></i>区块链测试案例库
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.performance_tests') }}">
+                        <i class="fas fa-tachometer-alt me-1"></i>性能测试
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ test_case.title }}
+                </li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>{{ test_case.title }}
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <strong><i class="fas fa-tag me-2 text-warning"></i>分类：</strong>
+                        <span class="badge bg-warning ms-2">{{ test_case.category or '未分类' }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        {% if test_case.tools_used %}
+                        <strong><i class="fas fa-wrench me-2 text-warning"></i>使用工具：</strong>
+                        <span class="badge bg-secondary ms-2">{{ test_case.tools_used.split('\n')[0] }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if test_case.description %}
+                <div class="mb-4">
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-info-circle me-2"></i>测试描述
+                    </h5>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <p class="card-text mb-0">{{ test_case.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_case.test_objective %}
+                <div class="mb-4">
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-bullseye me-2"></i>测试目标
+                    </h5>
+                    <div class="card bg-warning bg-opacity-10 border-warning">
+                        <div class="card-body">
+                            <p class="card-text mb-0" style="white-space: pre-wrap;">{{ test_case.test_objective }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_case.test_environment %}
+                <div class="mb-4">
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-server me-2"></i>测试环境
+                    </h5>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <p class="card-text mb-0" style="white-space: pre-wrap;">{{ test_case.test_environment }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_case.test_steps %}
+                <div class="mb-4">
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-list-ol me-2"></i>测试步骤
+                    </h5>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="card-text" style="white-space: pre-wrap;">{{ test_case.test_steps }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_case.metrics_to_collect %}
+                <div class="mb-4">
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-chart-bar me-2"></i>收集指标
+                    </h5>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <p class="card-text mb-0" style="white-space: pre-wrap;">{{ test_case.metrics_to_collect }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_case.acceptance_criteria %}
+                <div class="mb-4">
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-check-double me-2"></i>验收标准
+                    </h5>
+                    <div class="card bg-success bg-opacity-10 border-success">
+                        <div class="card-body">
+                            <p class="card-text mb-0 text-success" style="white-space: pre-wrap;">{{ test_case.acceptance_criteria }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_case.test_data_requirements %}
+                <div class="mb-4">
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-database me-2"></i>测试数据要求
+                    </h5>
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <p class="card-text mb-0" style="white-space: pre-wrap;">{{ test_case.test_data_requirements }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if test_case.common_pitfalls %}
+        <div class="card shadow-sm mb-4 border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>性能测试常见陷阱
+                </h4>
+            </div>
+            <div class="card-body bg-danger bg-opacity-10">
+                <div class="card-text" style="white-space: pre-wrap;">{{ test_case.common_pitfalls }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if test_case.optimization_strategies %}
+        <div class="card shadow-sm mb-4 border-info">
+            <div class="card-header bg-info text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-rocket me-2"></i>性能优化策略
+                </h4>
+            </div>
+            <div class="card-body bg-info bg-opacity-10">
+                <div class="card-text" style="white-space: pre-wrap;">{{ test_case.optimization_strategies }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if test_case.monitoring_points %}
+        <div class="card shadow-sm mb-4 border-secondary">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-eyeball me-2"></i>性能监控点
+                </h4>
+            </div>
+            <div class="card-body bg-secondary bg-opacity-10">
+                <div class="card-text" style="white-space: pre-wrap;">{{ test_case.monitoring_points }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{{ url_for('main.performance_tests') }}" class="btn btn-outline-warning">
+                <i class="fas fa-arrow-left me-1"></i>返回性能测试列表
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

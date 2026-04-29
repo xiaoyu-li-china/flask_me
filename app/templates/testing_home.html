@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-vial me-2"></i>测试知识体系
+        </h2>
+
+        <div class="alert alert-info mb-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>模块说明：</strong>测试知识体系涵盖从基础理论到实际应用的完整测试知识框架，与区块链测试模块并行发展。
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-tags me-2"></i>测试类型
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-4">
+                            系统介绍各类测试类型的定义、适用场景、核心概念和实际应用案例，帮助理解不同测试类型的特点和价值。
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('main.test_types') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-list me-2"></i>查看测试类型
+                            </a>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-check-circle me-1"></i>功能测试
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-tachometer-alt me-1"></i>性能测试
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-shield-alt me-1"></i>安全测试
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-users me-1"></i>用户体验
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow border-success">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-sitemap me-2"></i>测试流程及优化
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-4">
+                            详细讲解测试流程的各个阶段、关键活动、交付物，以及流程优化的技术和最佳实践，提升测试效率和质量。
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('main.test_processes') }}" class="btn btn-outline-success">
+                                <i class="fas fa-project-diagram me-2"></i>查看测试流程
+                            </a>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clipboard-list me-1"></i>测试计划
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-pencil-alt me-1"></i>测试设计
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-play-circle me-1"></i>测试执行
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-chart-bar me-1"></i>测试报告
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-robot me-2"></i>API自动化测试框架
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-4">
+                            深入介绍主流API自动化测试框架的核心特性、架构设计、最佳实践和代码示例，帮助构建高效的自动化测试体系。
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('main.api_automation_frameworks') }}" class="btn btn-outline-warning">
+                                <i class="fas fa-cogs me-2"></i>查看框架介绍
+                            </a>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fab fa-python me-1"></i>Requests
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fab fa-java me-1"></i>RestAssured
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-code me-1"></i>Postman
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-bolt me-1"></i>JMeter
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-book-open me-2"></i>测试理论
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-4">
+                            系统讲解软件测试的核心理论、基本原则、历史发展和实际应用，构建坚实的测试理论基础。
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('main.test_theories') }}" class="btn btn-outline-info">
+                                <i class="fas fa-graduation-cap me-2"></i>学习测试理论
+                            </a>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-lightbulb me-1"></i>测试原则
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-layer-group me-1"></i>测试层次
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>缺陷管理
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-balance-scale me-1"></i>风险评估
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow border-secondary">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-puzzle-piece me-2"></i>测试用例设计思想
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-4">
+                            深入讲解各种测试用例设计技术的原理、适用场景、步骤方法和实际案例，提升测试用例设计的质量和效率。
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('main.test_case_designs') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-drafting-compass me-2"></i>学习设计技术
+                            </a>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-border-all me-1"></i>等价类划分
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-th me-1"></i>边界值分析
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-table me-1"></i>判定表法
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-project-diagram me-1"></i>状态转换
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow border-dark">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-search-plus me-2"></i>QA与QC的分析
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-4">
+                            深入分析质量保证(QA)与质量控制(QC)的定义、区别、角色职责、流程方法和最佳实践，构建完整的质量体系认知。
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('main.qa_qc_analyses') }}" class="btn btn-outline-dark">
+                                <i class="fas fa-analytics me-2"></i>深入了解QA/QC
+                            </a>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clipboard-check me-1"></i>质量保证
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-search me-1"></i>质量控制
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-arrows-alt-h me-1"></i>关键区别
+                                    </small>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-chart-line me-1"></i>度量指标
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>知识体系统计
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-3 bg-primary bg-opacity-10 rounded">
+                            <h3 class="text-primary mb-1">{{ stats.test_types or 0 }}</h3>
+                            <small class="text-muted">测试类型</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-3 bg-success bg-opacity-10 rounded">
+                            <h3 class="text-success mb-1">{{ stats.test_processes or 0 }}</h3>
+                            <small class="text-muted">测试流程阶段</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-3 bg-warning bg-opacity-10 rounded">
+                            <h3 class="text-warning mb-1">{{ stats.api_frameworks or 0 }}</h3>
+                            <small class="text-muted">自动化框架</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-3 bg-info bg-opacity-10 rounded">
+                            <h3 class="text-info mb-1">{{ stats.test_theories or 0 }}</h3>
+                            <small class="text-muted">测试理论</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-3 bg-secondary bg-opacity-10 rounded">
+                            <h3 class="text-secondary mb-1">{{ stats.case_designs or 0 }}</h3>
+                            <small class="text-muted">设计技术</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6 mb-3">
+                        <div class="p-3 bg-dark bg-opacity-10 rounded">
+                            <h3 class="text-dark mb-1">{{ stats.qa_qc_analyses or 0 }}</h3>
+                            <small class="text-muted">QA/QC分析</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

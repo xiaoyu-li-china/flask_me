@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.testing_home') }}">
+                        <i class="fas fa-vial me-1"></i>测试知识体系
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.test_theories') }}">
+                        <i class="fas fa-book-open me-1"></i>测试理论
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ theory.topic }}
+                </li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-book-open me-2"></i>{{ theory.topic }}
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if theory.category %}
+                <div class="mb-3">
+                    <span class="badge bg-info">
+                        <i class="fas fa-folder me-1"></i>{{ theory.category }}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if theory.description %}
+                <div class="mb-4">
+                    <h5 class="text-info mb-2">
+                        <i class="fas fa-info-circle me-2"></i>描述
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ theory.description | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    {% if theory.key_principles %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-info mb-2">
+                            <i class="fas fa-star me-2"></i>核心原则
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ theory.key_principles | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if theory.historical_context %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-info mb-2">
+                            <i class="fas fa-history me-2"></i>历史背景
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ theory.historical_context | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    {% if theory.practical_applications %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-success mb-2">
+                            <i class="fas fa-cogs me-2"></i>实际应用
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ theory.practical_applications | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if theory.related_concepts %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-warning mb-2">
+                            <i class="fas fa-link me-2"></i>相关概念
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ theory.related_concepts | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if theory.examples %}
+                <div class="mb-4">
+                    <h5 class="text-info mb-2">
+                        <i class="fas fa-file-code me-2"></i>实际案例
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ theory.examples | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{{ url_for('main.test_theories') }}" class="btn btn-outline-info">
+                    <i class="fas fa-arrow-left me-1"></i>返回测试理论列表
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.testing_home') }}">
+                        <i class="fas fa-vial me-1"></i>测试知识体系
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-tags me-1"></i>测试类型
+                </li>
+            </ol>
+        </nav>
+
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-tags me-2"></i>测试类型
+        </h2>
+
+        <div class="alert alert-info mb-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>说明：</strong>系统介绍各类测试类型的定义、适用场景、核心概念和实际应用案例，帮助理解不同测试类型的特点和价值。
+        </div>
+
+        {% if categories %}
+        <div class="mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted mb-3">
+                        <i class="fas fa-filter me-1"></i>按分类筛选：
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('main.test_types') }}" 
+                           class="btn {% if not current_category %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">
+                            全部分类
+                        </a>
+                        {% for cat in categories %}
+                            {% if cat.category %}
+                            <a href="{{ url_for('main.test_types', category=cat.category) }}" 
+                               class="btn {% if current_category == cat.category %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm">
+                                {{ cat.category }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if test_types %}
+            <div class="row">
+            {% for test_type in test_types %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        <div class="card-header bg-transparent border-bottom">
+                            {% if test_type.category %}
+                            <span class="badge bg-primary me-1">
+                                <i class="fas fa-tag me-1"></i>{{ test_type.category }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">
+                                <a href="{{ url_for('main.test_type_detail', type_id=test_type.id) }}" 
+                                   class="text-decoration-none">
+                                    {{ test_type.name }}
+                                </a>
+                            </h5>
+                            {% if test_type.description %}
+                            <p class="card-text text-muted small mt-2" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ test_type.description }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('main.test_type_detail', type_id=test_type.id) }}" 
+                                   class="btn btn-primary btn-sm flex-grow-1">
+                                    <i class="fas fa-eye me-1"></i>查看详情
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                暂无测试类型数据，请稍后再查看。
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

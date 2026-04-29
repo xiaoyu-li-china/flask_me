@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.blockchain_tests') }}">
+                        <i class="fas fa-link me-1"></i>区块链测试案例库
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-flask me-1"></i>功能测试用例
+                </li>
+            </ol>
+        </nav>
+
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-flask me-2"></i>功能测试用例
+        </h2>
+
+        <div class="mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted mb-3">
+                        <i class="fas fa-layer-group me-1"></i>按模块筛选：
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <a href="{{ url_for('main.blockchain_functional_tests') }}" 
+                           class="btn {% if not current_module %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
+                            全部模块
+                        </a>
+                        {% for m in modules %}
+                        <a href="{{ url_for('main.blockchain_functional_tests', module=m.name) }}" 
+                           class="btn {% if current_module == m.name %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
+                            <i class="fas {{ m.icon }} me-1"></i>{{ m.display_name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if current_module %}
+                    <hr>
+                    <h6 class="card-subtitle text-muted mb-2">
+                        <i class="fas fa-filter me-1"></i>按分类筛选：
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ url_for('main.blockchain_functional_tests', module=current_module) }}" 
+                           class="btn {% if not current_category %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
+                            全部分类
+                        </a>
+                        {% for m, cat in categories %}
+                            {% if m == current_module and cat %}
+                            <a href="{{ url_for('main.blockchain_functional_tests', module=current_module, category=cat) }}" 
+                               class="btn {% if current_category == cat %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
+                                {{ cat }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if test_cases %}
+            <div class="row">
+            {% for test in test_cases %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        <div class="card-header bg-transparent border-bottom">
+                            {% if test.module %}
+                            <span class="badge bg-success me-1">
+                                {% for m in modules %}
+                                    {% if m.name == test.module %}{{ m.display_name }}{% endif %}
+                                {% endfor %}
+                            </span>
+                            {% endif %}
+                            {% if test.category %}
+                            <span class="badge bg-info me-1">
+                                <i class="fas fa-tag me-1"></i>{{ test.category }}
+                            </span>
+                            {% endif %}
+                            {% if test.priority %}
+                            <span class="badge {% if test.priority == 'P0' %}bg-danger{% elif test.priority == 'P1' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                {{ test.priority }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">
+                                <a href="{{ url_for('main.blockchain_test_detail', test_id=test.id) }}" 
+                                   class="text-decoration-none">
+                                    {{ test.title }}
+                                </a>
+                            </h5>
+                            {% if test.test_type %}
+                            <small class="text-muted">
+                                <i class="fas fa-vial me-1"></i>{{ test.test_type }}
+                            </small>
+                            {% endif %}
+                            {% if test.description %}
+                            <p class="card-text text-muted small mt-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ test.description }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0">
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('main.blockchain_test_detail', test_id=test.id) }}" 
+                                   class="btn btn-primary btn-sm flex-grow-1">
+                                    <i class="fas fa-eye me-1"></i>查看详情
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                暂无测试案例，请稍后再查看。
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

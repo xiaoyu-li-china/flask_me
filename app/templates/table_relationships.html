@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.blockchain_tests') }}">
+                        <i class="fas fa-link me-1"></i>区块链测试案例库
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-book me-1"></i>基础原理 - 表格关系
+                </li>
+            </ol>
+        </nav>
+
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-project-diagram me-2"></i>表格关系与数据流程
+        </h2>
+
+        <div class="alert alert-info mb-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>表格关系概述：</strong>理解币币交易和合约交易中的数据表关系、数据流向和表间调用，对于测试设计和问题定位至关重要。
+        </div>
+
+        {% if relationships %}
+            {% set modules = [] %}
+            {% for r in relationships %}
+                {% if r.module not in modules %}
+                    {% set _ = modules.append(r.module) %}
+                {% endif %}
+            {% endfor %}
+
+            {% for module in modules %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-layer-group me-2"></i>
+                        {% if module == 'spot_trading' %}币币交易
+                        {% elif module == 'contract_trading' %}合约交易
+                        {% elif module == 'cex' %}CEX充提币
+                        {% else %}{{ module }}
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% for r in relationships %}
+                        {% if r.module == module %}
+                        <div class="card mb-3 border-secondary">
+                            <div class="card-header bg-light">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-link me-2"></i>{{ r.relationship_name }}
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text mb-3">{{ r.description }}</p>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <strong><i class="fas fa-arrow-right me-2 text-primary"></i>源表：</strong>
+                                        <span class="badge bg-info">{{ r.source_table }}</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong><i class="fas fa-arrows-alt-h me-2 text-primary"></i>关系类型：</strong>
+                                        <span class="badge bg-secondary">{{ r.relationship_type }}</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong><i class="fas fa-arrow-left me-2 text-primary"></i>目标表：</strong>
+                                        <span class="badge bg-info">{{ r.target_table }}</span>
+                                    </div>
+                                </div>
+
+                                {% if r.key_fields %}
+                                <div class="mb-3">
+                                    <h6 class="text-primary"><i class="fas fa-key me-2"></i>关联字段：</h6>
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <p class="card-text mb-0">{{ r.key_fields }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if r.data_flow_diagram %}
+                                <div class="mb-3">
+                                    <h6 class="text-primary"><i class="fas fa-sitemap me-2"></i>数据流向：</h6>
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <p class="card-text mb-0" style="white-space: pre-wrap;">{{ r.data_flow_diagram }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if r.test_scenarios %}
+                                <div class="mb-3">
+                                    <h6 class="text-primary"><i class="fas fa-flask me-2"></i>测试场景：</h6>
+                                    <div class="card bg-info bg-opacity-10 border-info">
+                                        <div class="card-body">
+                                            <p class="card-text mb-0 text-info" style="white-space: pre-wrap;">{{ r.test_scenarios }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                暂无表格关系数据，请稍后再查看。
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{{ url_for('main.blockchain_tests') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-1"></i>返回测试案例库
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

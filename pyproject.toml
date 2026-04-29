@@ -1,0 +1,21 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flask-me"
+version = "1.0.0"
+description = "A Flask-based personal portfolio application"
+requires-python = ">=3.8"
+dependencies = [
+    "Flask==3.0.0",
+    "Flask-SQLAlchemy==3.1.1",
+    "Flask-Login==0.6.3",
+    "Flask-WTF==1.2.1",
+    "Werkzeug==3.0.1",
+    "SQLAlchemy==2.0.23",
+    "gunicorn==21.2.0"
+]

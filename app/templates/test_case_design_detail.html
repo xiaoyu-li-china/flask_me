@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.testing_home') }}">
+                        <i class="fas fa-vial me-1"></i>测试知识体系
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.test_case_designs') }}">
+                        <i class="fas fa-puzzle-piece me-1"></i>测试用例设计思想
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ design.technique_name }}
+                </li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-puzzle-piece me-2"></i>{{ design.technique_name }}
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if design.category %}
+                <div class="mb-3">
+                    <span class="badge bg-secondary">
+                        <i class="fas fa-folder me-1"></i>{{ design.category }}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if design.description %}
+                <div class="mb-4">
+                    <h5 class="text-secondary mb-2">
+                        <i class="fas fa-info-circle me-2"></i>描述
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ design.description | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    {% if design.purpose %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-secondary mb-2">
+                            <i class="fas fa-bullseye me-2"></i>目的
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ design.purpose | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if design.when_to_apply %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-secondary mb-2">
+                            <i class="fas fa-clock me-2"></i>适用场景
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ design.when_to_apply | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if design.step_by_step_guide %}
+                <div class="mb-4">
+                    <h5 class="text-secondary mb-2">
+                        <i class="fas fa-list-ol me-2"></i>步骤方法
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ design.step_by_step_guide | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if design.examples %}
+                <div class="mb-4">
+                    <h5 class="text-secondary mb-2">
+                        <i class="fas fa-file-code me-2"></i>实例演示
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ design.examples | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    {% if design.advantages %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-success mb-2">
+                            <i class="fas fa-plus-circle me-2"></i>优点
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ design.advantages | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if design.limitations %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-danger mb-2">
+                            <i class="fas fa-minus-circle me-2"></i>局限性
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ design.limitations | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if design.real_world_scenarios %}
+                <div class="mb-4">
+                    <h5 class="text-secondary mb-2">
+                        <i class="fas fa-globe me-2"></i>真实场景应用
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ design.real_world_scenarios | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{{ url_for('main.test_case_designs') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>返回设计技术列表
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

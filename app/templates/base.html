@@ -50,6 +50,18 @@
                             <i class="fas fa-trophy me-1"></i>成果
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'main.blockchain_tests' or request.endpoint == 'main.blockchain_test_detail' %}active{% endif %}" 
+                           href="{{ url_for('main.blockchain_tests') }}">
+                            <i class="fas fa-link me-1"></i>区块链测试
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint and request.endpoint.startswith('main.testing') %}active{% endif %}" 
+                           href="{{ url_for('main.testing_home') }}">
+                            <i class="fas fa-vial me-1"></i>测试知识体系
+                        </a>
+                    </li>
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
@@ -94,7 +106,7 @@
 
     <footer class="bg-dark text-light py-4 mt-auto">
         <div class="container text-center">
-            <p class="mb-0">&copy; 2024 个人展示网站. All rights reserved.</p>
+            <p class="mb-0">&copy; 2026 个人展示网站. All rights reserved.</p>
         </div>
     </footer>
 

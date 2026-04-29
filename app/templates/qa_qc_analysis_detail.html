@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.testing_home') }}">
+                        <i class="fas fa-vial me-1"></i>测试知识体系
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.qa_qc_analyses') }}">
+                        <i class="fas fa-search-plus me-1"></i>QA与QC的分析
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ analysis.title }}
+                </li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-search-plus me-2"></i>{{ analysis.title }}
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if analysis.category %}
+                <div class="mb-3">
+                    <span class="badge bg-dark">
+                        <i class="fas fa-folder me-1"></i>{{ analysis.category }}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if analysis.description %}
+                <div class="mb-4">
+                    <h5 class="text-dark mb-2">
+                        <i class="fas fa-info-circle me-2"></i>描述
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ analysis.description | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if analysis.definition %}
+                <div class="mb-4">
+                    <h5 class="text-dark mb-2">
+                        <i class="fas fa-book me-2"></i>定义
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ analysis.definition | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if analysis.key_differences %}
+                <div class="mb-4">
+                    <h5 class="text-dark mb-2">
+                        <i class="fas fa-exchange-alt me-2"></i>关键区别
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ analysis.key_differences | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if analysis.roles_responsibilities %}
+                <div class="mb-4">
+                    <h5 class="text-dark mb-2">
+                        <i class="fas fa-user-tie me-2"></i>角色与职责
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ analysis.roles_responsibilities | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if analysis.processes %}
+                <div class="mb-4">
+                    <h5 class="text-dark mb-2">
+                        <i class="fas fa-sitemap me-2"></i>流程方法
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ analysis.processes | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    {% if analysis.tools_techniques %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-dark mb-2">
+                            <i class="fas fa-tools me-2"></i>工具与技术
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ analysis.tools_techniques | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.metrics_kpis %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-dark mb-2">
+                            <i class="fas fa-chart-line me-2"></i>度量指标与KPI
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ analysis.metrics_kpis | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    {% if analysis.best_practices %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-success mb-2">
+                            <i class="fas fa-star me-2"></i>最佳实践
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ analysis.best_practices | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if analysis.real_world_examples %}
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-info mb-2">
+                            <i class="fas fa-globe me-2"></i>真实案例
+                        </h5>
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                {{ analysis.real_world_examples | safe }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{{ url_for('main.qa_qc_analyses') }}" class="btn btn-outline-dark">
+                    <i class="fas fa-arrow-left me-1"></i>返回QA/QC分析列表
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

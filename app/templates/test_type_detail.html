@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.testing_home') }}">
+                        <i class="fas fa-vial me-1"></i>测试知识体系
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.test_types') }}">
+                        <i class="fas fa-tags me-1"></i>测试类型
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ test_type.name }}
+                </li>
+            </ol>
+        </nav>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-tag me-2"></i>{{ test_type.name }}
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if test_type.category %}
+                <div class="mb-3">
+                    <span class="badge bg-primary">
+                        <i class="fas fa-folder me-1"></i>{{ test_type.category }}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if test_type.description %}
+                <div class="mb-4">
+                    <h5 class="text-primary mb-2">
+                        <i class="fas fa-info-circle me-2"></i>描述
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ test_type.description | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_type.purpose %}
+                <div class="mb-4">
+                    <h5 class="text-primary mb-2">
+                        <i class="fas fa-bullseye me-2"></i>目的
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ test_type.purpose | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_type.when_to_use %}
+                <div class="mb-4">
+                    <h5 class="text-primary mb-2">
+                        <i class="fas fa-clock me-2"></i>适用场景
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ test_type.when_to_use | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_type.key_concepts %}
+                <div class="mb-4">
+                    <h5 class="text-primary mb-2">
+                        <i class="fas fa-lightbulb me-2"></i>核心概念
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ test_type.key_concepts | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_type.tools %}
+                <div class="mb-4">
+                    <h5 class="text-primary mb-2">
+                        <i class="fas fa-tools me-2"></i>常用工具
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ test_type.tools | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if test_type.examples %}
+                <div class="mb-4">
+                    <h5 class="text-primary mb-2">
+                        <i class="fas fa-file-code me-2"></i>实际案例
+                    </h5>
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            {{ test_type.examples | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-transparent">
+                <a href="{{ url_for('main.test_types') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>返回测试类型列表
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -40,7 +40,13 @@
                                             <strong>{{ achievement.organization }}</strong>
                                         </p>
                                     {% endif %}
-                                    <p class="text-muted mb-0">{{ achievement.description }}</p>
+                                    <p class="text-muted mb-3">{{ achievement.description }}</p>
+                                    {% if achievement.github_url and achievement.github_url != 'None' and achievement.github_url != '' and achievement.github_url.startswith('http') %}
+                                        <a href="{{ achievement.github_url }}" target="_blank" 
+                                           class="btn btn-dark btn-sm">
+                                            <i class="fab fa-github me-1"></i>查看Git详情
+                                        </a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

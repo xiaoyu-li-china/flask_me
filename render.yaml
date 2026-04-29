@@ -2,11 +2,12 @@ services:
   - type: web
     name: flask-me
     env: python
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && chmod +x start.sh
-    startCommand: ./start.sh
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      chmod +x start.sh
+    startCommand: /bin/bash start.sh
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.11"
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL

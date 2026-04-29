@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'flask-me-secret-key-2024'
@@ -7,3 +10,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
+    DEBUG = False

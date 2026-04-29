@@ -21,9 +21,6 @@ def create_app(config_class=Config):
     from app.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     
-    from app.workflow import workflow as workflow_blueprint
-    app.register_blueprint(workflow_blueprint)
-    
     return app
 
 from app import models

@@ -13,14 +13,20 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         
-        user = User.query.filter_by(username=username).first()
-        
-        if user and user.check_password(password):
-            login_user(user)
-            next_page = request.args.get('next')
-            return redirect(next_page or url_for('main.home'))
-        else:
-            flash('用户名或密码错误', 'danger')
+        try:
+            user = User.query.filter_by(username=username).first()
+            
+            if user:
+                if user.check_password(password):
+                    login_user(user)
+                    next_page = request.args.get('next')
+                    return redirect(next_page or url_for('main.home'))
+                else:
+                    flash('密码错误', 'danger')
+            else:
+                flash('用户不存在', 'danger')
+        except Exception as e:
+            flash(f'登录时发生错误: {str(e)}', 'danger')
     
     return render_template('login.html', title='登录')
 

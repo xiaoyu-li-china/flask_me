@@ -16,6 +16,13 @@ app = create_app()
 with app.app_context():
     db.create_all()
     
+    def sync_existing_record(existing_record, new_record):
+        for column in new_record.__table__.columns:
+            column_name = column.name
+            if column_name in ('id', 'created_at', 'upload_time'):
+                continue
+            setattr(existing_record, column_name, getattr(new_record, column_name))
+    
     admin = User.query.filter_by(username='admin').first()
     if not admin:
         admin = User(username='admin')
@@ -79,6 +86,8 @@ with app.app_context():
         existing = Project.query.filter_by(title=p.title).first()
         if not existing:
             db.session.add(p)
+        else:
+            sync_existing_record(existing, p)
     
     sample_certificates = [
         Certificate(
@@ -96,11 +105,7 @@ with app.app_context():
         if not existing:
             db.session.add(c)
         else:
-            existing.issuer = c.issuer
-            existing.issue_date = c.issue_date
-            existing.credential_id = c.credential_id
-            existing.image_filename = c.image_filename
-            existing.description = c.description
+            sync_existing_record(existing, c)
     
     sample_achievements = [
         Achievement(
@@ -151,6 +156,8 @@ with app.app_context():
         existing = Achievement.query.filter_by(title=a.title).first()
         if not existing:
             db.session.add(a)
+        else:
+            sync_existing_record(existing, a)
     
     sample_blockchain_tests = [
         BlockChainTestCases(
@@ -213,6 +220,8 @@ with app.app_context():
         existing = BlockChainTestCases.query.filter_by(title=t.title).first()
         if not existing:
             db.session.add(t)
+        else:
+            sync_existing_record(existing, t)
     
     test_modules = [
         TestModule(
@@ -263,6 +272,8 @@ with app.app_context():
         existing = TestModule.query.filter_by(name=m.name).first()
         if not existing:
             db.session.add(m)
+        else:
+            sync_existing_record(existing, m)
     
     web3_transaction_lifecycle_stages = [
         TransactionLifecycleStage(
@@ -351,6 +362,8 @@ with app.app_context():
         ).first()
         if not existing:
             db.session.add(s)
+        else:
+            sync_existing_record(existing, s)
     
     cex_contract_lifecycle_stages = [
         TransactionLifecycleStage(
@@ -439,6 +452,8 @@ with app.app_context():
         ).first()
         if not existing:
             db.session.add(s)
+        else:
+            sync_existing_record(existing, s)
     
     spot_trading_lifecycle_stages = [
         TransactionLifecycleStage(
@@ -527,6 +542,8 @@ with app.app_context():
         ).first()
         if not existing:
             db.session.add(s)
+        else:
+            sync_existing_record(existing, s)
     
     contract_types = [
         ContractType(
@@ -602,14 +619,7 @@ with app.app_context():
         if not existing:
             db.session.add(ct)
         else:
-            existing.display_name = ct.display_name
-            existing.description = ct.description
-            existing.key_features = ct.key_features
-            existing.settlement_type = ct.settlement_type
-            existing.margin_mode = ct.margin_mode
-            existing.risk_characteristics = ct.risk_characteristics
-            existing.test_scenarios = ct.test_scenarios
-            existing.sort_order = ct.sort_order
+            sync_existing_record(existing, ct)
     
     table_relationships = [
         TableRelationship(
@@ -709,6 +719,8 @@ with app.app_context():
         ).first()
         if not existing:
             db.session.add(r)
+        else:
+            sync_existing_record(existing, r)
     
     performance_test_cases = [
         PerformanceTestCase(
@@ -762,6 +774,8 @@ with app.app_context():
         existing = PerformanceTestCase.query.filter_by(title=p.title).first()
         if not existing:
             db.session.add(p)
+        else:
+            sync_existing_record(existing, p)
     
     advanced_blockchain_tests = [
         BlockChainTestCases(
@@ -1025,6 +1039,8 @@ with app.app_context():
         existing = BlockChainTestCases.query.filter_by(title=t.title).first()
         if not existing:
             db.session.add(t)
+        else:
+            sync_existing_record(existing, t)
     
     test_types = [
         TestType(
@@ -1253,6 +1269,8 @@ with app.app_context():
         existing = TestType.query.filter_by(name=t.name).first()
         if not existing:
             db.session.add(t)
+        else:
+            sync_existing_record(existing, t)
     
     test_processes = [
         TestProcess(
@@ -1426,6 +1444,8 @@ with app.app_context():
         existing = TestProcess.query.filter_by(stage_name=p.stage_name).first()
         if not existing:
             db.session.add(p)
+        else:
+            sync_existing_record(existing, p)
     
     db.session.commit()
     print('数据库初始化完成！')

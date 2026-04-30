@@ -1,6 +1,6 @@
 import os
 os.environ.setdefault('FLASK_ENV', 'production')
-os.environ.setdefault('DATABASE_URL', 'sqlite:///site.db')
+# 数据库连接以环境变量 DATABASE_URL 与 config.Config 为准；勿在此写死 sqlite，以免与 init_db 使用的库不一致
 os.environ.setdefault('SECRET_KEY', 'flask-me-secret-key-2024')
 
 from app import create_app, db

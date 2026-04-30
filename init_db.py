@@ -15,6 +15,8 @@ app = create_app()
 
 with app.app_context():
     db.create_all()
+    # 便于在 Render 日志中确认实际连的是 Postgres 还是 SQLite（避免 init 与 Web 连不同库）
+    print(f"init_db: 数据库驱动={db.engine.url.drivername}", flush=True)
     
     def sync_existing_record(existing_record, new_record):
         for column in new_record.__table__.columns:
@@ -1451,3 +1453,11 @@ with app.app_context():
     print('数据库初始化完成！')
     print('默认管理员账号: admin')
     print('默认管理员密码: admin123')
+    print(
+        'init_db: 行数统计 — '
+        f'BlockChainTestCases={BlockChainTestCases.query.count()}, '
+        f'TransactionLifecycleStage={TransactionLifecycleStage.query.count()}, '
+        f'TestType={TestType.query.count()}, '
+        f'TestModule={TestModule.query.count()}',
+        flush=True,
+    )

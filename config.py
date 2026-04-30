@@ -3,9 +3,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+def _normalize_database_url(url):
+    """Render/Heroku 等常提供 postgres://，SQLAlchemy 需要 postgresql://。"""
+    if not url:
+        return url
+    if url.startswith('postgres://'):
+        return url.replace('postgres://', 'postgresql://', 1)
+    return url
+
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'flask-me-secret-key-2024'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+    SQLALCHEMY_DATABASE_URI = _normalize_database_url(os.environ.get('DATABASE_URL')) or \
         'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'site.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STATIC_FOLDER = 'static'

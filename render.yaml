@@ -3,11 +3,18 @@ services:
     name: flask-me
     env: python
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: python init_db_script.py && gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --threads 4 wsgi:app
+    startCommand: python init_db.py && gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 1 --threads 4 wsgi:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        value: sqlite:///site.db
+        fromDatabase:
+          name: flask-me-db
+          property: connectionString
       - key: FLASK_ENV
         value: production
+
+databases:
+  - name: flask-me-db
+    databaseName: flask_me
+    user: flask_me_user

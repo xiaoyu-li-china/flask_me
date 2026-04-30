@@ -88,78 +88,15 @@ def blockchain_functional_tests():
         BlockChainTestCases.created_at.desc()
     ).all()
 
-    # 在“全部分类”视图下，隐藏注册/登录相关案例（P0 保留）：
-    # 1) 全部模块；2) CEX 模块。
+    # 在“全部分类”视图下，仅按「注册登录」分类隐藏非 P0 用例（避免误伤含 token/kyc/中文「中」等正文）。
+    # 适用：1) 全部模块；2) CEX 模块。
     if (not module and not category) or (module == 'cex' and not category):
-        auth_keywords = (
-            '注册', '登录', 'register', 'login', 'sign in', 'signin', 'sign up', 'signup',
-            '认证', '鉴权', 'auth', 'oauth', 'jwt', 'token', '密码', '账号', '账户安全',
-            '二次验证', '双重验证', '2fa', 'mfa', '验证码', '信任设备', 'kyc'
-        )
-        auth_categories = ('注册登录', '账户安全', '身份认证', '认证鉴权', 'kyc')
-
-        def _is_auth_related_case(test_case):
-            category_text = (test_case.category or '').strip().lower()
-            if any(auth_category in category_text for auth_category in auth_categories):
-                return True
-
-            searchable_text = ' '.join([
-                test_case.category or '',
-                test_case.sub_category or '',
-                test_case.title or '',
-                test_case.description or '',
-                test_case.preconditions or '',
-                test_case.test_steps or '',
-                test_case.expected_result or ''
-            ]).lower()
-            return any(keyword in searchable_text for keyword in auth_keywords)
+        def _is_register_login_category_only(test_case):
+            return (test_case.category or '').strip() == '注册登录'
 
         test_cases = [
             case for case in test_cases
-            if (case.priority or '').strip().upper() == 'P0' or not _is_auth_related_case(case)
-        ]
-
-    # “全部模块”视图下，隐藏包含“中/低”字样的案例。
-    if not module and not category:
-        level_keywords = ('中', '低')
-        excluded_case_keywords = (
-            '不同入口跳转正确性',
-            '手机小屏（iphone se）、大屏手机（iphone 14 pro max）、平板、pc显示器',
-            '主流浏览器最新版及前两个主要版本',
-            '手机号/邮箱格式校验',
-            '输入框焦点与错误提示样式',
-            '用户常用设备标记为信用设备',
-            '持有特定oce代币达到一定数量的用户',
-            '网络较慢或点击过快'
-        )
-
-        def _contains_level_keyword(test_case):
-            searchable_text = ' '.join([
-                test_case.category or '',
-                test_case.sub_category or '',
-                test_case.title or '',
-                test_case.description or '',
-                test_case.preconditions or '',
-                test_case.test_steps or '',
-                test_case.expected_result or ''
-            ])
-            return any(keyword in searchable_text for keyword in level_keywords)
-
-        def _is_excluded_case(test_case):
-            searchable_text = ' '.join([
-                test_case.category or '',
-                test_case.sub_category or '',
-                test_case.title or '',
-                test_case.description or '',
-                test_case.preconditions or '',
-                test_case.test_steps or '',
-                test_case.expected_result or ''
-            ]).lower()
-            return any(keyword in searchable_text for keyword in excluded_case_keywords)
-
-        test_cases = [
-            case for case in test_cases
-            if not _contains_level_keyword(case) and not _is_excluded_case(case)
+            if (case.priority or '').strip().upper() == 'P0' or not _is_register_login_category_only(case)
         ]
     
     modules = TestModule.query.filter(TestModule.name != 'performance').order_by(TestModule.sort_order).all()

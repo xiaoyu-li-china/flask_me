@@ -11,6 +11,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -96,6 +97,7 @@ class TestModule(db.Model):
 
 class TransactionLifecycleStage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    lifecycle_type = db.Column(db.String(50), default='web3_chain')
     stage_name = db.Column(db.String(100), nullable=False)
     stage_order = db.Column(db.Integer, nullable=False)
     description = db.Column(db.Text)
@@ -107,6 +109,21 @@ class TransactionLifecycleStage(db.Model):
     
     def __repr__(self):
         return f'<TransactionLifecycleStage {self.stage_name}>'
+
+class ContractType(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    display_name = db.Column(db.String(100))
+    description = db.Column(db.Text)
+    key_features = db.Column(db.Text)
+    settlement_type = db.Column(db.String(50))
+    margin_mode = db.Column(db.String(50))
+    risk_characteristics = db.Column(db.Text)
+    test_scenarios = db.Column(db.Text)
+    sort_order = db.Column(db.Integer, default=0)
+    
+    def __repr__(self):
+        return f'<ContractType {self.name}>'
 
 class TableRelationship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -243,3 +260,24 @@ class QAQCAnalysis(db.Model):
     
     def __repr__(self):
         return f'<QAQCAnalysis {self.title}>'
+
+
+class TestUpload(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    file_name = db.Column(db.String(200), nullable=False)
+    file_type = db.Column(db.String(20))
+    file_path = db.Column(db.String(500))
+    upload_time = db.Column(db.DateTime, default=datetime.utcnow)
+    uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(200))
+    description = db.Column(db.Text)
+    module = db.Column(db.String(50))
+    category = db.Column(db.String(50))
+    parsed_data = db.Column(db.Text)
+    status = db.Column(db.String(20), default='pending')
+    error_message = db.Column(db.Text)
+    
+    uploader = db.relationship('User', backref=db.backref('test_uploads', lazy=True))
+    
+    def __repr__(self):
+        return f'<TestUpload {self.file_name}>'

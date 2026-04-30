@@ -20,50 +20,93 @@
             <i class="fas fa-flask me-2"></i>功能测试用例
         </h2>
 
-        <div class="mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6 class="card-subtitle text-muted mb-3">
-                        <i class="fas fa-layer-group me-1"></i>按模块筛选：
-                    </h6>
-                    <div class="d-flex flex-wrap gap-2 mb-3">
-                        <a href="{{ url_for('main.blockchain_functional_tests') }}" 
-                           class="btn {% if not current_module %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
-                            全部模块
-                        </a>
-                        {% for m in modules %}
-                        <a href="{{ url_for('main.blockchain_functional_tests', module=m.name) }}" 
-                           class="btn {% if current_module == m.name %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
-                            <i class="fas {{ m.icon }} me-1"></i>{{ m.display_name }}
-                        </a>
-                        {% endfor %}
-                    </div>
-                    
-                    {% if current_module %}
-                    <hr>
-                    <h6 class="card-subtitle text-muted mb-2">
-                        <i class="fas fa-filter me-1"></i>按分类筛选：
-                    </h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="{{ url_for('main.blockchain_functional_tests', module=current_module) }}" 
-                           class="btn {% if not current_category %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
-                            全部分类
-                        </a>
-                        {% for m, cat in categories %}
-                            {% if m == current_module and cat %}
-                            <a href="{{ url_for('main.blockchain_functional_tests', module=current_module, category=cat) }}" 
-                               class="btn {% if current_category == cat %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
-                                {{ cat }}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-subtitle text-muted mb-3">
+                            <i class="fas fa-layer-group me-1"></i>按模块筛选：
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            <a href="{{ url_for('main.blockchain_functional_tests') }}" 
+                               class="btn {% if not current_module %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
+                                全部模块
                             </a>
-                            {% endif %}
-                        {% endfor %}
+                            {% for m in modules %}
+                            <a href="{{ url_for('main.blockchain_functional_tests', module=m.name) }}" 
+                               class="btn {% if current_module == m.name %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
+                                <i class="fas {{ m.icon }} me-1"></i>{{ m.display_name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if current_module %}
+                        <hr>
+                        <h6 class="card-subtitle text-muted mb-2">
+                            <i class="fas fa-filter me-1"></i>按分类筛选：
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ url_for('main.blockchain_functional_tests', module=current_module) }}" 
+                               class="btn {% if not current_category %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
+                                全部分类
+                            </a>
+                            {% for m, cat in categories %}
+                                {% if m == current_module and cat %}
+                                <a href="{{ url_for('main.blockchain_functional_tests', module=current_module, category=cat) }}" 
+                                   class="btn {% if current_category == cat %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
+                                    {{ cat }}
+                                </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
 
-        {% if test_cases %}
+        {% if show_uploaded_excel_only %}
+            <div class="card shadow-sm mb-4 border-info">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        <i class="fas fa-table me-1"></i>注册登录 - 上传Excel测试用例
+                    </h6>
+                    {% if preview_upload %}
+                    <a href="{{ url_for('main.uploaded_test_case_detail', upload_id=preview_upload.id) }}" class="btn btn-sm btn-light">
+                        查看上传记录
+                    </a>
+                    {% endif %}
+                </div>
+                <div class="card-body p-0">
+                    {% if preview_table_rows %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    {% for col in preview_table_columns %}
+                                    <th scope="col">{{ col }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in preview_table_rows %}
+                                <tr>
+                                    {% for col in preview_table_columns %}
+                                    <td style="min-width: 160px; white-space: pre-wrap;">{{ row[col] }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        当前分类暂无可展示的上传Excel测试用例，请先在上传测试用例模块上传并解析。
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% elif test_cases %}
             <div class="row">
             {% for test in test_cases %}
                 <div class="col-md-6 col-lg-4 mb-4">

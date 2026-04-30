@@ -14,19 +14,69 @@
                     <div class="card shadow-sm">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-3 mb-3 mb-md-0">
-                                    {% if achievement.image_filename %}
-                                        <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=achievement%20award%20trophy%20with%20gold%20medal%20celebration%20moment%20professional%20recognition&image_size=square_hd" 
-                                             class="img-fluid rounded shadow" alt="{{ achievement.title }}"
-                                             style="max-height: 150px; width: 100%; object-fit: cover;">
-                                    {% else %}
-                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                             style="height: 150px;">
-                                            <i class="fas fa-trophy fa-3x text-warning opacity-50"></i>
-                                        </div>
+                                <div class="col-md-2 mb-3 mb-md-0 d-flex align-items-center justify-content-center">
+                                    {% set achievement_icon = 'fa-trophy' %}
+                                    {% set icon_color = 'text-warning' %}
+                                    {% set bg_color = 'bg-warning' %}
+                                    
+                                    {% if '小程序' in achievement.title %}
+                                        {% set achievement_icon = 'fa-mobile-screen-button' %}
+                                        {% set icon_color = 'text-indigo' %}
+                                        {% set bg_color = 'bg-indigo' %}
+                                    {% elif 'Flask' in achievement.title or '系统' in achievement.title %}
+                                        {% set achievement_icon = 'fa-cloud' %}
+                                        {% set icon_color = 'text-teal' %}
+                                        {% set bg_color = 'bg-teal' %}
+                                    {% elif '区块链' in achievement.title or 'NFT' in achievement.title %}
+                                        {% set achievement_icon = 'fa-cube' %}
+                                        {% set icon_color = 'text-pink' %}
+                                        {% set bg_color = 'bg-pink' %}
+                                    {% elif '测试' in achievement.title or '质量' in achievement.title or 'QA' in achievement.title or 'QC' in achievement.title or '流程' in achievement.title or '优化' in achievement.title or 'Jira' in achievement.title or 'BUG' in achievement.title %}
+                                        {% set achievement_icon = 'fa-vial' %}
+                                        {% set icon_color = 'text-success' %}
+                                        {% set bg_color = 'bg-success' %}
+                                    {% elif '奖' in achievement.title or '荣誉' in achievement.title or '表彰' in achievement.title or '奖励' in achievement.title %}
+                                        {% set achievement_icon = 'fa-award' %}
+                                        {% set icon_color = 'text-warning' %}
+                                        {% set bg_color = 'bg-warning' %}
+                                    {% elif '证书' in achievement.title or '认证' in achievement.title or '资格' in achievement.title %}
+                                        {% set achievement_icon = 'fa-certificate' %}
+                                        {% set icon_color = 'text-info' %}
+                                        {% set bg_color = 'bg-info' %}
+                                    {% elif '学习' in achievement.title or '培训' in achievement.title or '教育' in achievement.title %}
+                                        {% set achievement_icon = 'fa-graduation-cap' %}
+                                        {% set icon_color = 'text-purple' %}
+                                        {% set bg_color = 'bg-purple' %}
+                                    {% elif '创新' in achievement.title or '专利' in achievement.title or '发明' in achievement.title %}
+                                        {% set achievement_icon = 'fa-lightbulb' %}
+                                        {% set icon_color = 'text-yellow' %}
+                                        {% set bg_color = 'bg-yellow' %}
+                                    {% elif '团队' in achievement.title or '协作' in achievement.title or '合作' in achievement.title %}
+                                        {% set achievement_icon = 'fa-users' %}
+                                        {% set icon_color = 'text-secondary' %}
+                                        {% set bg_color = 'bg-secondary' %}
+                                    {% elif '代码' in achievement.title or '编程' in achievement.title or '开发' in achievement.title or '项目' in achievement.title %}
+                                        {% set achievement_icon = 'fa-code' %}
+                                        {% set icon_color = 'text-primary' %}
+                                        {% set bg_color = 'bg-primary' %}
                                     {% endif %}
+                                    
+                                    <div class="achievement-icon rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 100px; height: 100px; 
+                                                {% if icon_color == 'text-indigo' %}background-color: rgba(102, 16, 242, 0.1);{% endif %}
+                                                {% if icon_color == 'text-teal' %}background-color: rgba(32, 201, 151, 0.1);{% endif %}
+                                                {% if icon_color == 'text-pink' %}background-color: rgba(214, 51, 132, 0.1);{% endif %}
+                                                {% if icon_color == 'text-primary' %}background-color: rgba(13, 110, 253, 0.1);{% endif %}
+                                                {% if icon_color == 'text-success' %}background-color: rgba(25, 135, 84, 0.1);{% endif %}
+                                                {% if icon_color == 'text-warning' %}background-color: rgba(255, 193, 7, 0.1);{% endif %}
+                                                {% if icon_color == 'text-info' %}background-color: rgba(13, 202, 240, 0.1);{% endif %}
+                                                {% if icon_color == 'text-purple' %}background-color: rgba(111, 66, 193, 0.1);{% endif %}
+                                                {% if icon_color == 'text-yellow' %}background-color: rgba(255, 193, 7, 0.1);{% endif %}
+                                                {% if icon_color == 'text-secondary' %}background-color: rgba(108, 117, 125, 0.1);{% endif %}">
+                                        <i class="fas {{ achievement_icon }} fa-3x {{ icon_color }}"></i>
+                                    </div>
                                 </div>
-                                <div class="col-md-9">
+                                <div class="col-md-10">
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <h5 class="text-primary mb-0">{{ achievement.title }}</h5>
                                         <span class="badge bg-success">

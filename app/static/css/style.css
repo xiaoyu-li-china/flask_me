@@ -187,3 +187,75 @@ footer {
 .shadow-lg {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
 }
+
+/* 自定义颜色类 */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+.text-yellow {
+    color: #ffc107 !important;
+}
+
+.bg-yellow {
+    background-color: #ffc107 !important;
+}
+
+.text-indigo {
+    --bs-text-opacity: 1;
+    color: rgba(102, 16, 242, var(--bs-text-opacity)) !important;
+}
+
+.bg-indigo {
+    --bs-bg-opacity: 1;
+    background-color: rgba(102, 16, 242, var(--bs-bg-opacity)) !important;
+}
+
+.text-teal {
+    --bs-text-opacity: 1;
+    color: rgba(32, 201, 151, var(--bs-text-opacity)) !important;
+}
+
+.bg-teal {
+    --bs-bg-opacity: 1;
+    background-color: rgba(32, 201, 151, var(--bs-bg-opacity)) !important;
+}
+
+.text-pink {
+    --bs-text-opacity: 1;
+    color: rgba(214, 51, 132, var(--bs-text-opacity)) !important;
+}
+
+.bg-pink {
+    --bs-bg-opacity: 1;
+    background-color: rgba(214, 51, 132, var(--bs-bg-opacity)) !important;
+}
+
+/* 成就图标样式 */
+.achievement-icon {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.achievement-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover .achievement-icon {
+    border-color: rgba(13, 110, 253, 0.2);
+}
+
+/* 成就卡片悬停效果 */
+.timeline-item .card {
+    transition: all 0.3s ease;
+}
+
+.timeline-item .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}

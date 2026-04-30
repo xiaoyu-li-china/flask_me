@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-user-shield me-2"></i>用户权限页面
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>当前用户：</strong>{{ current_user.username }}
+                </p>
+                <p class="mb-4">
+                    <strong>当前角色：</strong>
+                    {% if current_user.is_admin %}
+                    <span class="badge bg-warning text-dark">admin</span>
+                    {% else %}
+                    <span class="badge bg-secondary">user</span>
+                    {% endif %}
+                </p>
+
+                {% if current_user.is_admin %}
+                <div class="alert alert-success mb-3" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    您是管理员，可访问上传测试用例模块。
+                </div>
+                <a href="{{ url_for('main.test_case_upload_module') }}" class="btn btn-primary">
+                    <i class="fas fa-cloud-upload-alt me-1"></i>进入上传测试用例模块
+                </a>
+                {% else %}
+                <div class="alert alert-info mb-3" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    您是普通用户，可浏览测试知识与区块链测试内容，不展示上传测试用例模块。
+                </div>
+                <a href="{{ url_for('main.testing_home') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-vial me-1"></i>进入测试知识体系
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

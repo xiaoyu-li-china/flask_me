@@ -1,0 +1,1301 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.blockchain_tests') }}">
+                        <i class="fas fa-link me-1"></i>区块链测试案例库
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-book me-1"></i>基础原理 - 钱包、CEX、DEX与公链
+                </li>
+            </ol>
+        </nav>
+
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-network-wired me-2"></i>钱包、CEX、DEX与公链的关系
+        </h2>
+
+        <div class="alert alert-info mb-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>概述：</strong>理解钱包（Wallet）、中心化交易所（CEX）、去中心化交易所（DEX）和公链（Public Chain）之间的关系与区别，是区块链测试工程师必备的基础知识。
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 text-primary">
+                    <i class="fas fa-compass me-2"></i>快速导航
+                </h6>
+            </div>
+            <div class="card-body py-3">
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <a href="#wallet-section" class="btn btn-outline-warning btn-sm px-3 py-2">
+                        <i class="fas fa-wallet me-1"></i>钱包
+                    </a>
+                    <a href="#cex-section" class="btn btn-outline-danger btn-sm px-3 py-2">
+                        <i class="fas fa-building me-1"></i>CEX
+                    </a>
+                    <a href="#dex-section" class="btn btn-outline-success btn-sm px-3 py-2">
+                        <i class="fas fa-code-branch me-1"></i>DEX
+                    </a>
+                    <a href="#chain-section" class="btn btn-outline-primary btn-sm px-3 py-2">
+                        <i class="fas fa-link me-1"></i>公链
+                    </a>
+                    <a href="#compare-section" class="btn btn-outline-secondary btn-sm px-3 py-2">
+                        <i class="fas fa-balance-scale me-1"></i>对比
+                    </a>
+                    <a href="#flow-section" class="btn btn-outline-dark btn-sm px-3 py-2">
+                        <i class="fas fa-sitemap me-1"></i>流程图
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="relationship-overview" class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-project-diagram me-2"></i>四者关系总览
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card bg-warning bg-opacity-10 border-warning h-100">
+                                <div class="card-body py-2">
+                                    <i class="fas fa-wallet fa-2x text-warning mb-1"></i>
+                                    <h6 class="mb-0 fw-bold">钱包</h6>
+                                    <small class="text-muted">管理私钥</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row align-items-center justify-content-center mb-2">
+                        <div class="col-2 text-center">
+                            <i class="fas fa-arrow-down text-primary"></i>
+                            <br><small class="text-muted">签名</small>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card bg-danger bg-opacity-10 border-danger h-100">
+                                <div class="card-body py-2">
+                                    <i class="fas fa-building fa-2x text-danger mb-1"></i>
+                                    <h6 class="mb-0 fw-bold">CEX</h6>
+                                    <small class="text-muted">托管资产</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-1 text-center d-none d-md-block">
+                            <h5 class="text-primary fw-bold">VS</h5>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="card bg-success bg-opacity-10 border-success h-100">
+                                <div class="card-body py-2">
+                                    <i class="fas fa-code-branch fa-2x text-success mb-1"></i>
+                                    <h6 class="mb-0 fw-bold">DEX</h6>
+                                    <small class="text-muted">智能合约</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center justify-content-center mb-2">
+                        <div class="col-2 text-center">
+                            <i class="fas fa-arrow-down text-primary"></i>
+                            <br><small class="text-muted">交互</small>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center justify-content-center">
+                        <div class="col-6 col-md-3">
+                            <div class="card bg-primary bg-opacity-5 border-primary h-100">
+                                <div class="card-body py-2">
+                                    <i class="fas fa-link fa-2x text-dark mb-1"></i>
+                                    <h6 class="mb-0 fw-bold text-dark">公链</h6>
+                                    <small class="text-muted">底层基础设施</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="alert alert-light border border-primary border-opacity-25 h-100" role="alert">
+                            <h6 class="alert-heading text-primary">
+                                <i class="fas fa-lightbulb me-2"></i>核心定位
+                            </h6>
+                            <hr>
+                            <ul class="mb-0 small">
+                                <li><strong>公链</strong>：底层基础设施，所有资产和交易的最终账本</li>
+                                <li><strong>钱包</strong>：用户与公链交互的入口，管理私钥和签名</li>
+                                <li><strong>CEX</strong>：中心化交易平台，托管用户资产，内部撮合</li>
+                                <li><strong>DEX</strong>：去中心化交易平台，智能合约自动执行</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-light border border-secondary border-opacity-25 h-100" role="alert">
+                            <h6 class="alert-heading text-secondary">
+                                <i class="fas fa-key me-2"></i>关键区别
+                            </h6>
+                            <hr>
+                            <ul class="mb-0 small">
+                                <li><strong>CEX vs DEX</strong>：资产托管权是核心区别</li>
+                                <li><strong>钱包类型</strong>：托管 vs 非托管，热钱包 vs 冷钱包</li>
+                                <li><strong>交易方式</strong>：CEX 内部记账 vs DEX 链上执行</li>
+                                <li><strong>信任成本</strong>：CEX 需信任平台，DEX 需信任代码</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="wallet-section" class="card shadow-sm mb-4">
+            <div class="card-header bg-warning text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-wallet me-2"></i>钱包 (Wallet)
+                    </h4>
+                    <span class="badge bg-white text-warning">用户入口</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h6 class="text-warning fw-bold mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>什么是钱包？
+                                </h6>
+                                <p class="small mb-3">
+                                    钱包是用户管理数字资产的工具，它存储的是<strong>私钥</strong>和<strong>公钥</strong>对，
+                                    而不是数字资产本身。数字资产实际存储在公链上。
+                                </p>
+                                <div class="alert alert-warning bg-opacity-10 border-warning py-2" role="alert">
+                                    <small class="mb-0">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        <strong>核心：</strong>私钥 = 资产所有权
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h6 class="text-warning fw-bold mb-3">
+                                    <i class="fas fa-key me-2"></i>核心概念
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-borderless small">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-bold text-nowrap"><i class="fas fa-lock text-danger me-1"></i>私钥</td>
+                                                <td>证明资产所有权，必须保密</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-nowrap"><i class="fas fa-unlock text-success me-1"></i>公钥</td>
+                                                <td>由私钥生成，可公开</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-nowrap"><i class="fas fa-map-marker-alt text-info me-1"></i>地址</td>
+                                                <td>由公钥生成，接收资产</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-nowrap"><i class="fas fa-book text-secondary me-1"></i>助记词</td>
+                                                <td>私钥的人类可读形式</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h6 class="text-warning fw-bold mb-3">
+                                    <i class="fas fa-th-large me-2"></i>钱包类型
+                                </h6>
+                                <div class="mb-3">
+                                    <small class="text-muted d-block mb-1">按私钥存储：</small>
+                                    <div class="d-flex gap-2">
+                                        <span class="badge bg-secondary">托管钱包</span>
+                                        <span class="badge bg-warning">非托管钱包</span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted d-block mb-1">按连接方式：</small>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="badge bg-info">热钱包</span>
+                                        <span class="badge bg-success">冷钱包</span>
+                                        <span class="badge bg-primary">硬件钱包</span>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info bg-opacity-10 border-info py-2" role="alert">
+                                    <small class="mb-0">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        <strong>推荐：</strong>大额资产用硬件钱包
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <div class="card bg-info bg-opacity-10 border-info">
+                        <div class="card-header bg-transparent border-info">
+                            <h6 class="mb-0 text-info">
+                                <i class="fas fa-crosshairs me-2"></i>测试重点
+                            </h6>
+                        </div>
+                        <div class="card-body py-2">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <small class="text-info"><i class="fas fa-check-circle me-1"></i>私钥/助记词的生成、导入、导出</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-info"><i class="fas fa-check-circle me-1"></i>地址生成规则和格式校验</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-info"><i class="fas fa-check-circle me-1"></i>交易签名功能正确性</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cex-section" class="card shadow-sm mb-4">
+            <div class="card-header bg-danger text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-building me-2"></i>CEX (中心化交易所)
+                    </h4>
+                    <span class="badge bg-white text-danger">托管模式</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h6 class="text-danger fw-bold mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>什么是CEX？
+                                </h6>
+                                <p class="small mb-2">
+                                    CEX 是由公司或组织运营的数字资产交易平台，作为中介方<strong>托管用户资产</strong>并提供交易撮合服务。
+                                </p>
+                                <div class="alert alert-danger bg-opacity-10 border-danger py-2" role="alert">
+                                    <small class="mb-0">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        <strong>关键点：</strong>用户拥有的是交易所的"欠条"（IOU），而非真正的链上资产
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h6 class="text-danger fw-bold mb-3">
+                                    <i class="fas fa-cogs me-2"></i>工作原理
+                                </h6>
+                                <ol class="small mb-0 ps-3">
+                                    <li class="mb-1"><strong>充值</strong>：用户将资产转入交易所钱包地址</li>
+                                    <li class="mb-1"><strong>记账</strong>：交易所在内部数据库增加用户余额</li>
+                                    <li class="mb-1"><strong>交易</strong>：用户在内部订单簿交易，仅修改数据库</li>
+                                    <li class="mb-1"><strong>提币</strong>：用户申请提币，交易所从其钱包转出</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h6 class="text-danger fw-bold mb-3">
+                            <i class="fas fa-th-list me-2"></i>核心业务模块
+                        </h6>
+                        <div class="accordion" id="cexAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="cexHeadingOne">
+                                    <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cexCollapseOne">
+                                        <i class="fas fa-exchange-alt me-2"></i>币币交易 (Spot Trading)
+                                    </button>
+                                </h2>
+                                <div id="cexCollapseOne" class="accordion-collapse collapse" data-bs-parent="#cexAccordion">
+                                    <div class="accordion-body py-2">
+                                        <small>
+                                            <strong>功能：</strong>订单簿、撮合引擎、K线、深度图<br>
+                                            <strong>测试：</strong>价格精度、订单状态流转、成交计算
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="cexHeadingTwo">
+                                    <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cexCollapseTwo">
+                                        <i class="fas fa-chart-line me-2"></i>合约交易 (Contract Trading)
+                                    </button>
+                                </h2>
+                                <div id="cexCollapseTwo" class="accordion-collapse collapse" data-bs-parent="#cexAccordion">
+                                    <div class="accordion-body py-2">
+                                        <small>
+                                            <strong>功能：</strong>开仓、平仓、杠杆、保证金、强平<br>
+                                            <strong>测试：</strong>保证金计算、盈亏计算、强平触发
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="cexHeadingThree">
+                                    <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cexCollapseThree">
+                                        <i class="fas fa-arrow-down me-2"></i>充币 (Deposit)
+                                    </button>
+                                </h2>
+                                <div id="cexCollapseThree" class="accordion-collapse collapse" data-bs-parent="#cexAccordion">
+                                    <div class="accordion-body py-2">
+                                        <small>
+                                            <strong>功能：</strong>地址生成、区块确认、余额入账<br>
+                                            <strong>测试：</strong>地址有效性、确认数计算、重复充值
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="cexHeadingFour">
+                                    <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#cexCollapseFour">
+                                        <i class="fas fa-arrow-up me-2"></i>提币 (Withdraw)
+                                    </button>
+                                </h2>
+                                <div id="cexCollapseFour" class="accordion-collapse collapse" data-bs-parent="#cexAccordion">
+                                    <div class="accordion-body py-2">
+                                        <small>
+                                            <strong>功能：</strong>地址校验、风控审核、签名广播<br>
+                                            <strong>测试：</strong>地址格式、手续费计算、审核流程
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h6 class="text-danger fw-bold mb-3">
+                            <i class="fas fa-balance-scale me-2"></i>优缺点对比
+                        </h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card bg-success bg-opacity-10 border-success h-100">
+                                    <div class="card-header bg-transparent border-success py-2">
+                                        <h6 class="mb-0 text-success small">
+                                            <i class="fas fa-plus-circle me-1"></i>优点
+                                        </h6>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        <ul class="mb-0 small ps-3">
+                                            <li>用户体验好，操作简单</li>
+                                            <li>交易速度快，无需链上确认</li>
+                                            <li>流动性好，深度充足</li>
+                                            <li>功能丰富（合约、杠杆）</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-danger bg-opacity-10 border-danger h-100">
+                                    <div class="card-header bg-transparent border-danger py-2">
+                                        <h6 class="mb-0 text-danger small">
+                                            <i class="fas fa-minus-circle me-1"></i>缺点
+                                        </h6>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        <ul class="mb-0 small ps-3">
+                                            <li>需信任第三方（交易所）</li>
+                                            <li>有被黑客攻击风险</li>
+                                            <li>可能跑路、冻结资产</li>
+                                            <li>KYC 要求，隐私性差</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dex-section" class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-code-branch me-2"></i>DEX (去中心化交易所)
+                    </h4>
+                    <span class="badge bg-white text-success">非托管模式</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h6 class="text-success fw-bold mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>什么是DEX？
+                                </h6>
+                                <p class="small mb-2">
+                                    DEX 是运行在区块链上的<strong>智能合约</strong>，不托管用户资产，用户始终保持对资产的控制权，交易直接在链上执行。
+                                </p>
+                                <div class="alert alert-success bg-opacity-10 border-success py-2" role="alert">
+                                    <small class="mb-0">
+                                        <i class="fas fa-check-circle me-1"></i>
+                                        <strong>核心理念：</strong>Not your keys, not your coins.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h6 class="text-success fw-bold mb-3">
+                                    <i class="fas fa-sync me-2"></i>交易流程
+                                </h6>
+                                <ol class="small mb-0 ps-3">
+                                    <li class="mb-1"><strong>钱包连接</strong>：使用 MetaMask 等钱包连接 DEX</li>
+                                    <li class="mb-1"><strong>授权</strong>：授权 DEX 合约可使用其 Token</li>
+                                    <li class="mb-1"><strong>签名交易</strong>：在钱包中确认并签名</li>
+                                    <li class="mb-1"><strong>链上执行</strong>：交易上链，智能合约执行兑换</li>
+                                    <li class="mb-1"><strong>资产到账</strong>：Token 直接转入用户钱包</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h6 class="text-success fw-bold mb-3">
+                            <i class="fas fa-th-large me-2"></i>主要类型
+                        </h6>
+                        <div class="card bg-light border-0">
+                            <div class="card-body py-2">
+                                <div class="mb-2">
+                                    <h6 class="mb-1 small fw-bold"><i class="fas fa-book-open text-secondary me-1"></i>订单簿模式 (Order Book)</h6>
+                                    <p class="small text-muted mb-0">与 CEX 类似，但订单簿和撮合都在链上。代表：dYdX、0x</p>
+                                </div>
+                                <hr class="my-2">
+                                <div class="mb-2">
+                                    <h6 class="mb-1 small fw-bold"><i class="fas fa-water text-secondary me-1"></i>AMM 自动做市商</h6>
+                                    <p class="small text-muted mb-0">通过 x*y=k 公式定价，用户与流动性池交易。代表：Uniswap、PancakeSwap</p>
+                                </div>
+                                <hr class="my-2">
+                                <div>
+                                    <h6 class="mb-1 small fw-bold"><i class="fas fa-handshake text-secondary me-1"></i>聚合器 (Aggregator)</h6>
+                                    <p class="small text-muted mb-0">在多个 DEX 间寻最优价格。代表：1inch、Matcha</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card bg-info bg-opacity-10 border-info mt-3">
+                            <div class="card-body py-2">
+                                <h6 class="mb-2 text-info small fw-bold">
+                                    <i class="fas fa-calculator me-1"></i>AMM 核心原理（Uniswap V2）
+                                </h6>
+                                <p class="mb-1 small"><strong>恒定乘积公式：</strong>x * y = k</p>
+                                <ul class="mb-0 small ps-3">
+                                    <li>x：流动性池中 Token A 的数量</li>
+                                    <li>y：流动性池中 Token B 的数量</li>
+                                    <li>k：恒定值，交易前后保持不变</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h6 class="text-success fw-bold mb-3">
+                            <i class="fas fa-balance-scale me-2"></i>优缺点对比
+                        </h6>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div class="card bg-success bg-opacity-10 border-success h-100">
+                                    <div class="card-header bg-transparent border-success py-2">
+                                        <h6 class="mb-0 text-success small">
+                                            <i class="fas fa-plus-circle me-1"></i>优点
+                                        </h6>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        <ul class="mb-0 small ps-3">
+                                            <li>用户掌控私钥，资产安全</li>
+                                            <li>无需 KYC，隐私性好</li>
+                                            <li>无需信任第三方</li>
+                                            <li>24/7 运行，无停机</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-danger bg-opacity-10 border-danger h-100">
+                                    <div class="card-header bg-transparent border-danger py-2">
+                                        <h6 class="mb-0 text-danger small">
+                                            <i class="fas fa-minus-circle me-1"></i>缺点
+                                        </h6>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        <ul class="mb-0 small ps-3">
+                                            <li>需支付 Gas 费</li>
+                                            <li>交易速度取决于链</li>
+                                            <li>存在滑点问题</li>
+                                            <li>用户体验相对复杂</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-info bg-opacity-10 border-info">
+                            <div class="card-header bg-transparent border-info py-2">
+                                <h6 class="mb-0 text-info small">
+                                    <i class="fas fa-crosshairs me-2"></i>测试重点
+                                </h6>
+                            </div>
+                            <div class="card-body py-2">
+                                <ul class="mb-0 small ps-3">
+                                    <li>钱包连接和断开功能</li>
+                                    <li>Token 授权 (Approve) 流程</li>
+                                    <li>价格计算和滑点保护</li>
+                                    <li>流动性池添加/移除</li>
+                                    <li>Gas 费估算和动态调整</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="chain-section" class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-link me-2"></i>公链 (Public Chain)
+                    </h4>
+                    <span class="badge bg-white text-primary">底层基础设施</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="card bg-light border-0 h-100">
+                            <div class="card-body">
+                                <h6 class="text-primary fw-bold mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>什么是公链？
+                                </h6>
+                                <p class="small mb-3">
+                                    公链是完全开放的区块链，任何人都可以参与网络、读取数据、发送交易。
+                                    是去中心化应用（DApp）和数字资产的<strong>底层基础设施</strong>。
+                                </p>
+                                
+                                <h6 class="text-primary fw-bold mb-2">
+                                    <i class="fas fa-star me-2"></i>主要公链
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered small">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>公链</th>
+                                                <th>Token</th>
+                                                <th>共识</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>以太坊</strong></td>
+                                                <td>ETH</td>
+                                                <td>PoS</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>BNB Chain</strong></td>
+                                                <td>BNB</td>
+                                                <td>PoSA</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Polygon</strong></td>
+                                                <td>MATIC</td>
+                                                <td>PoS</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Solana</strong></td>
+                                                <td>SOL</td>
+                                                <td>PoH+PoS</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <h6 class="text-primary fw-bold mb-3">
+                            <i class="fas fa-key me-2"></i>核心概念
+                        </h6>
+                        <div class="accordion" id="chainAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="chainHeadingOne">
+                                    <button class="accordion-button py-2" type="button" data-bs-toggle="collapse" data-bs-target="#chainCollapseOne">
+                                        <i class="fas fa-gas-pump me-2"></i>Gas 费
+                                    </button>
+                                </h2>
+                                <div id="chainCollapseOne" class="accordion-collapse collapse show" data-bs-parent="#chainAccordion">
+                                    <div class="accordion-body py-2">
+                                        <small>
+                                            <strong>定义：</strong>用户支付给矿工/验证者的交易手续费<br>
+                                            <strong>作用：</strong>防止网络滥用，激励节点维护网络<br>
+                                            <strong>特点：</strong>价格动态波动，取决于网络拥堵程度
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="chainHeadingTwo">
+                                    <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#chainCollapseTwo">
+                                        <i class="fas fa-cube me-2"></i>区块确认
+                                    </button>
+                                </h2>
+                                <div id="chainCollapseTwo" class="accordion-collapse collapse" data-bs-parent="#chainAccordion">
+                                    <div class="accordion-body py-2">
+                                        <small>
+                                            <strong>定义：</strong>交易被打包进区块后，需等待后续区块确认<br>
+                                            <strong>原因：</strong>防止区块链重组（Reorg）<br>
+                                            <strong>常见：</strong>ETH 12-64 个确认，BTC 通常 6 个确认
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="chainHeadingThree">
+                                    <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#chainCollapseThree">
+                                        <i class="fas fa-network-wired me-2"></i>跨链桥
+                                    </button>
+                                </h2>
+                                <div id="chainCollapseThree" class="accordion-collapse collapse" data-bs-parent="#chainAccordion">
+                                    <div class="accordion-body py-2">
+                                        <small>
+                                            <strong>定义：</strong>连接不同区块链，实现资产跨链转移<br>
+                                            <strong>原理：</strong>源链锁定资产，目标链 mint 映射资产<br>
+                                            <strong>风险：</strong>跨链桥是黑客攻击高发目标
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card bg-info bg-opacity-10 border-info mt-3">
+                            <div class="card-header bg-transparent border-info py-2">
+                                <h6 class="mb-0 text-info small">
+                                    <i class="fas fa-crosshairs me-2"></i>测试重点
+                                </h6>
+                            </div>
+                            <div class="card-body py-2">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <small class="text-info"><i class="fas fa-check-circle me-1"></i>不同公链的地址格式校验</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-info"><i class="fas fa-check-circle me-1"></i>交易状态轮询和确认</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-info"><i class="fas fa-check-circle me-1"></i>Gas 费估算和动态调整</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-info"><i class="fas fa-check-circle me-1"></i>主网与测试网环境区分</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="compare-section" class="card shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-balance-scale me-2"></i>CEX vs DEX 对比总结
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 15%;">对比维度</th>
+                                <th style="width: 42%;" class="text-center">CEX (中心化交易所)</th>
+                                <th style="width: 42%;" class="text-center">DEX (去中心化交易所)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold">资产托管</td>
+                                <td class="bg-danger bg-opacity-10">
+                                    <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                                    <small>交易所托管，用户不掌控私钥</small>
+                                </td>
+                                <td class="bg-success bg-opacity-10">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    <small>用户掌控私钥，资产在自己钱包</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">KYC 要求</td>
+                                <td class="bg-warning bg-opacity-10">
+                                    <i class="fas fa-id-card text-warning me-1"></i>
+                                    <small>通常需要实名认证</small>
+                                </td>
+                                <td class="bg-success bg-opacity-10">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    <small>无需 KYC，匿名交易</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">交易速度</td>
+                                <td class="bg-success bg-opacity-10">
+                                    <i class="fas fa-bolt text-success me-1"></i>
+                                    <small>毫秒级，内部撮合</small>
+                                </td>
+                                <td class="bg-warning bg-opacity-10">
+                                    <i class="fas fa-hourglass-half text-warning me-1"></i>
+                                    <small>取决于链出块速度</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">交易费用</td>
+                                <td class="bg-info bg-opacity-10">
+                                    <i class="fas fa-percentage text-info me-1"></i>
+                                    <small>交易手续费（约 0.1%）</small>
+                                </td>
+                                <td class="bg-warning bg-opacity-10">
+                                    <i class="fas fa-gas-pump text-warning me-1"></i>
+                                    <small>Gas 费 + 协议手续费</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">流动性</td>
+                                <td class="bg-success bg-opacity-10">
+                                    <i class="fas fa-tint text-success me-1"></i>
+                                    <small>高流动性，深度好</small>
+                                </td>
+                                <td class="bg-warning bg-opacity-10">
+                                    <i class="fas fa-tint-slash text-warning me-1"></i>
+                                    <small>取决于流动性池，可能有滑点</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">功能丰富度</td>
+                                <td class="bg-success bg-opacity-10">
+                                    <i class="fas fa-tools text-success me-1"></i>
+                                    <small>功能丰富（合约、杠杆、理财）</small>
+                                </td>
+                                <td class="bg-warning bg-opacity-10">
+                                    <i class="fas fa-tools text-warning me-1"></i>
+                                    <small>基础兑换为主，部分有杠杆</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">安全风险</td>
+                                <td class="bg-danger bg-opacity-10">
+                                    <i class="fas fa-shield-alt text-danger me-1"></i>
+                                    <small>单点故障风险，可能被黑客攻击</small>
+                                </td>
+                                <td class="bg-success bg-opacity-10">
+                                    <i class="fas fa-shield-alt text-success me-1"></i>
+                                    <small>智能合约风险，但无单点故障</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">适合场景</td>
+                                <td>
+                                    <i class="fas fa-users me-1"></i>
+                                    <small>新手用户、高频交易、大额交易</small>
+                                </td>
+                                <td>
+                                    <i class="fas fa-user-secret me-1"></i>
+                                    <small>注重隐私、追求去中心化、小额交易</small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="flow-section" class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-sitemap me-2"></i>四者关系完整流程图
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card border-primary h-100">
+                            <div class="card-header bg-primary text-white py-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-route me-2"></i>场景 1：用户在 CEX 进行交易
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <div class="d-flex flex-column align-items-center gap-2">
+                                        <div class="card bg-warning bg-opacity-10 border-warning" style="width: 160px;">
+                                            <div class="card-body py-2">
+                                                <i class="fas fa-wallet text-warning"></i><br>
+                                                <small class="fw-bold">用户钱包</small>
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="alert alert-primary py-1 px-2 mb-0" style="width: 160px;">
+                                            <small class="mb-0"><strong>充币</strong>（需链上确认）</small>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="card bg-danger bg-opacity-10 border-danger" style="width: 160px;">
+                                            <div class="card-body py-2">
+                                                <i class="fas fa-building text-danger"></i><br>
+                                                <small class="fw-bold">CEX 平台</small>
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="alert alert-success py-1 px-2 mb-0" style="width: 160px;">
+                                            <small class="mb-0"><strong>内部交易</strong>（仅修改数据库）</small>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="card bg-danger bg-opacity-10 border-danger" style="width: 160px;">
+                                            <div class="card-body py-2">
+                                                <i class="fas fa-building text-danger"></i><br>
+                                                <small class="fw-bold">CEX 平台</small>
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="alert alert-primary py-1 px-2 mb-0" style="width: 160px;">
+                                            <small class="mb-0"><strong>提币</strong>（需链上确认）</small>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="card bg-warning bg-opacity-10 border-warning" style="width: 160px;">
+                                            <div class="card-body py-2">
+                                                <i class="fas fa-wallet text-warning"></i><br>
+                                                <small class="fw-bold">用户钱包</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-light border border-danger border-opacity-25 py-2" role="alert">
+                                    <h6 class="alert-heading text-danger mb-1">
+                                        <i class="fas fa-exclamation-circle me-1"></i>CEX 模式特点
+                                    </h6>
+                                    <hr class="my-1">
+                                    <ul class="mb-0 small ps-3">
+                                        <li>充币和提币需要链上确认</li>
+                                        <li>交易本身在 CEX 内部数据库完成，<strong>不直接上链</strong></li>
+                                        <li>用户在交易期间<strong>失去对资产的控制权</strong></li>
+                                        <li>资产实际上由交易所托管</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="card border-success h-100">
+                            <div class="card-header bg-success text-white py-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-route me-2"></i>场景 2：用户在 DEX 进行交易
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <div class="d-flex flex-column align-items-center gap-2">
+                                        <div class="card bg-warning bg-opacity-10 border-warning" style="width: 160px;">
+                                            <div class="card-body py-2">
+                                                <i class="fas fa-wallet text-warning"></i><br>
+                                                <small class="fw-bold">用户钱包</small>
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="alert alert-info py-1 px-2 mb-0" style="width: 160px;">
+                                            <small class="mb-0"><strong>步骤 1：</strong>连接钱包</small>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="card bg-success bg-opacity-10 border-success" style="width: 160px;">
+                                            <div class="card-body py-2">
+                                                <i class="fas fa-code-branch text-success"></i><br>
+                                                <small class="fw-bold">DEX 页面</small>
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="alert alert-warning py-1 px-2 mb-0" style="width: 160px;">
+                                            <small class="mb-0"><strong>步骤 2：</strong>授权 + 签名</small>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="card bg-primary bg-opacity-5 border-primary" style="width: 160px;">
+                                            <div class="card-body py-2">
+                                                <i class="fas fa-link text-dark"></i><br>
+                                                <small class="fw-bold text-dark">公链</small>
+                                            </div>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="alert alert-success py-1 px-2 mb-0" style="width: 160px;">
+                                            <small class="mb-0"><strong>步骤 3：</strong>智能合约执行</small>
+                                        </div>
+                                        <i class="fas fa-arrow-down text-primary"></i>
+                                        <div class="card bg-warning bg-opacity-10 border-warning" style="width: 160px;">
+                                            <div class="card-body py-2">
+                                                <i class="fas fa-wallet text-warning"></i><br>
+                                                <small class="fw-bold">用户钱包</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-light border border-success border-opacity-25 py-2" role="alert">
+                                    <h6 class="alert-heading text-success mb-1">
+                                        <i class="fas fa-check-circle me-1"></i>DEX 模式特点
+                                    </h6>
+                                    <hr class="my-1">
+                                    <ul class="mb-0 small ps-3">
+                                        <li>用户<strong>全程掌控私钥</strong></li>
+                                        <li>每笔交易都需要钱包签名并<strong>直接上链执行</strong></li>
+                                        <li>智能合约自动完成资产兑换，<strong>无需信任第三方</strong></li>
+                                        <li>资产始终在用户自己的钱包中</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-12">
+                        <div class="card border-secondary">
+                            <div class="card-header bg-secondary text-white py-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-project-diagram me-2"></i>四者完整交互关系图
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center">
+                                    <div class="row justify-content-center mb-4">
+                                        <div class="col-12">
+                                            <div class="card bg-primary bg-opacity-5 border-primary d-inline-block px-5">
+                                                <div class="card-body py-3">
+                                                    <i class="fas fa-link fa-3x text-dark mb-2"></i>
+                                                    <h5 class="mb-0 fw-bold text-dark">公链 (底层基础设施)</h5>
+                                                    <small class="text-muted">所有资产和交易的最终账本</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row justify-content-center mb-2">
+                                        <div class="col-2 text-center">
+                                            <i class="fas fa-arrow-up text-primary"></i>
+                                            <br><small class="text-muted">链上交互</small>
+                                        </div>
+                                        <div class="col-1"></div>
+                                        <div class="col-2 text-center">
+                                            <i class="fas fa-arrow-up text-primary"></i>
+                                            <br><small class="text-muted">内部记账</small>
+                                        </div>
+                                        <div class="col-1"></div>
+                                        <div class="col-2 text-center">
+                                            <i class="fas fa-arrow-up text-primary"></i>
+                                            <br><small class="text-muted">智能合约</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row justify-content-center mb-4">
+                                        <div class="col-3">
+                                            <div class="card bg-warning bg-opacity-10 border-warning">
+                                                <div class="card-body py-2">
+                                                    <i class="fas fa-wallet fa-2x text-warning mb-1"></i>
+                                                    <h6 class="mb-0 fw-bold">钱包</h6>
+                                                    <small class="text-muted">管理私钥 + 签名</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-1 text-center align-self-center">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <i class="fas fa-arrow-right text-primary"></i>
+                                                <small class="text-muted">签名</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="card bg-danger bg-opacity-10 border-danger">
+                                                <div class="card-body py-2">
+                                                    <i class="fas fa-building fa-2x text-danger mb-1"></i>
+                                                    <h6 class="mb-0 fw-bold">CEX</h6>
+                                                    <small class="text-muted">托管资产 + 内部撮合</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-1 text-center align-self-center">
+                                            <h5 class="text-primary fw-bold">VS</h5>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="card bg-success bg-opacity-10 border-success">
+                                                <div class="card-body py-2">
+                                                    <i class="fas fa-code-branch fa-2x text-success mb-1"></i>
+                                                    <h6 class="mb-0 fw-bold">DEX</h6>
+                                                    <small class="text-muted">智能合约 + 链上执行</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row justify-content-center">
+                                        <div class="col-1 text-center align-self-center">
+                                            <i class="fas fa-arrow-down text-warning"></i>
+                                        </div>
+                                        <div class="col-1"></div>
+                                        <div class="col-1 text-center align-self-center">
+                                            <i class="fas fa-arrow-down text-danger"></i>
+                                        </div>
+                                        <div class="col-1"></div>
+                                        <div class="col-1 text-center align-self-center">
+                                            <i class="fas fa-arrow-down text-success"></i>
+                                        </div>
+                                    </div>
+
+                                    <div class="row justify-content-center mt-2">
+                                        <div class="col-lg-10">
+                                            <div class="alert alert-light border border-secondary" role="alert">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                        <h6 class="text-warning fw-bold mb-1">
+                                                            <i class="fas fa-wallet me-1"></i>钱包
+                                                        </h6>
+                                                        <small class="text-muted mb-0">
+                                                            用户与公链交互的唯一入口。<br>
+                                                            通过签名交易来证明资产所有权。
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <h6 class="text-danger fw-bold mb-1">
+                                                            <i class="fas fa-building me-1"></i>CEX 模式
+                                                        </h6>
+                                                        <small class="text-muted mb-0">
+                                                            充币 → 内部记账 → 内部交易 → 提币<br>
+                                                            <strong>核心风险：</strong>资产托管权转移
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <h6 class="text-success fw-bold mb-1">
+                                                            <i class="fas fa-code-branch me-1"></i>DEX 模式
+                                                        </h6>
+                                                        <small class="text-muted mb-0">
+                                                            连接钱包 → 授权 → 签名 → 链上执行<br>
+                                                            <strong>核心优势：</strong>用户始终掌控资产
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-lg-12">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white py-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>测试工程师视角的关键理解
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <div class="alert alert-light border border-warning border-opacity-25 h-100" role="alert">
+                                            <h6 class="alert-heading text-warning mb-2">
+                                                <i class="fas fa-wallet me-1"></i>钱包测试关注点
+                                            </h6>
+                                            <ul class="mb-0 small ps-3">
+                                                <li><strong>私钥管理：</strong>生成、导入、导出、备份与恢复</li>
+                                                <li><strong>地址管理：</strong>多链地址生成、地址格式校验</li>
+                                                <li><strong>签名功能：</strong>交易签名正确性、签名验证</li>
+                                                <li><strong>多链支持：</strong>链切换、网络配置、RPC 节点</li>
+                                                <li><strong>安全性：</strong>私钥加密存储、防泄漏机制</li>
+                                                <li><strong>DApp 连接：</strong>WalletConnect、授权管理</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="alert alert-light border border-danger border-opacity-25 h-100" role="alert">
+                                            <h6 class="alert-heading text-danger mb-2">
+                                                <i class="fas fa-building me-1"></i>CEX 测试关注点
+                                            </h6>
+                                            <ul class="mb-0 small ps-3">
+                                                <li><strong>充币测试：</strong>地址生成、区块确认、余额入账</li>
+                                                <li><strong>提币测试：</strong>地址校验、审核流程、签名广播</li>
+                                                <li><strong>交易测试：</strong>订单簿、撮合引擎、成交计算</li>
+                                                <li><strong>合约测试：</strong>开仓平仓、保证金、强平触发</li>
+                                                <li><strong>账户测试：</strong>余额冻结、资金流水、对账</li>
+                                                <li><strong>风控测试：</strong>异常检测、限额控制、KYC</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="alert alert-light border border-success border-opacity-25 h-100" role="alert">
+                                            <h6 class="alert-heading text-success mb-2">
+                                                <i class="fas fa-code-branch me-1"></i>DEX 测试关注点
+                                            </h6>
+                                            <ul class="mb-0 small ps-3">
+                                                <li><strong>钱包连接：</strong>多钱包支持、连接/断开</li>
+                                                <li><strong>授权流程：</strong>Approve、Permit、无限授权</li>
+                                                <li><strong>价格计算：</strong>AMM 公式、滑点保护、价格影响</li>
+                                                <li><strong>交易执行：</strong>Swap、多路径路由、手续费</li>
+                                                <li><strong>流动性：</strong>添加/移除、无常损失、挖矿奖励</li>
+                                                <li><strong>链上交互：</strong>Gas 估算、交易失败、Nonce</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="alert alert-light border border-primary border-opacity-25 h-100" role="alert">
+                                            <h6 class="alert-heading text-primary mb-2">
+                                                <i class="fas fa-link me-1"></i>公链测试关注点
+                                            </h6>
+                                            <ul class="mb-0 small ps-3">
+                                                <li><strong>节点交互：</strong>RPC 调用、节点选择、故障切换</li>
+                                                <li><strong>交易监听：</strong>区块监听、交易确认、状态跟踪</li>
+                                                <li><strong>Gas 管理：</strong>Gas 价格、Gas 限制、动态调整</li>
+                                                <li><strong>跨链桥：</strong>资产锁定、mint/burn、确认机制</li>
+                                                <li><strong>网络切换：</strong>主网/测试网、ChainID 校验</li>
+                                                <li><strong>合约交互：</strong>ABI 编码、事件监听、日志解析</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card bg-light border-0">
+                                            <div class="card-body py-2">
+                                                <h6 class="text-secondary fw-bold mb-2">
+                                                    <i class="fas fa-tools me-1"></i>通用测试工具与环境
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">
+                                                            <strong>区块链工具：</strong><br>
+                                                            - MetaMask、TP Wallet 等钱包<br>
+                                                            - Hardhat、Foundry 测试框架<br>
+                                                            - Ethers.js、Web3.js 库<br>
+                                                            - Ganache、Anvil 本地区块链
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">
+                                                            <strong>测试网络：</strong><br>
+                                                            - Ethereum: Sepolia、Goerli<br>
+                                                            - BNB Chain: Chapel Testnet<br>
+                                                            - Polygon: Mumbai Testnet<br>
+                                                            - Arbitrum: Sepolia Testnet
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light border-0">
+                                            <div class="card-body py-2">
+                                                <h6 class="text-secondary fw-bold mb-2">
+                                                    <i class="fas fa-bug me-1"></i>常见问题与故障排查
+                                                </h6>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">
+                                                            <strong>交易相关：</strong><br>
+                                                            - Gas 不足导致失败<br>
+                                                            - Nonce 重复或跳跃<br>
+                                                            - 交易被替换 (RBF)<br>
+                                                            - 区块重组 (Reorg)
+                                                        </small>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <small class="text-muted">
+                                                            <strong>数据相关：</strong><br>
+                                                            - 区块确认数不足<br>
+                                                            - 节点数据不同步<br>
+                                                            - 事件日志丢失<br>
+                                                            - 合约调用 revert
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-lg-12">
+                                        <div class="alert alert-info bg-opacity-10 border-info" role="alert">
+                                            <h6 class="alert-heading text-info mb-2">
+                                                <i class="fas fa-star me-1"></i>测试工程师核心能力要求
+                                            </h6>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">
+                                                        <strong>区块链知识：</strong><br>
+                                                        理解公链原理、交易生命周期、智能合约、Gas 机制、共识机制等基础概念。
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">
+                                                        <strong>工具使用：</strong><br>
+                                                        熟练使用浏览器钱包、区块浏览器（Etherscan、BscScan）、测试框架、Web3 库等。
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">
+                                                        <strong>合约理解：</strong><br>
+                                                        能够阅读 Solidity 代码，理解 ERC20、ERC721 等标准，识别常见安全漏洞。
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">
+                                                        <strong>风险意识：</strong><br>
+                                                        理解 DeFi 风险（滑点、无常损失、预言机攻击）、CEX 风险（跑路、冻结、黑客攻击）。
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{{ url_for('main.blockchain_tests') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-1"></i>返回测试案例库
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

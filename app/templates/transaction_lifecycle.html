@@ -62,69 +62,69 @@
                         </div>
 
                         {% if stage.key_concepts %}
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-2">
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">
                                 <i class="fas fa-key me-2"></i>核心概念
                             </h5>
                             <div class="card bg-light">
-                                <div class="card-body">
-                                    <p class="card-text mb-0">
+                                <div class="card-body py-4">
+                                    <div class="d-flex flex-wrap gap-2">
                                         {% for concept in stage.key_concepts.split(', ') %}
-                                        <span class="badge bg-info me-2 mb-1">{{ concept }}</span>
+                                        <span class="badge bg-info fs-6">{{ concept }}</span>
                                         {% endfor %}
-                                    </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         {% endif %}
 
                         {% if stage.involved_tables %}
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-2">
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">
                                 <i class="fas fa-table me-2"></i>涉及的数据表
                             </h5>
                             <div class="card bg-light">
-                                <div class="card-body">
-                                    <p class="card-text mb-0">{{ stage.involved_tables }}</p>
+                                <div class="card-body py-4">
+                                    <p class="card-text mb-0" style="line-height: 1.8;">{{ stage.involved_tables }}</p>
                                 </div>
                             </div>
                         </div>
                         {% endif %}
 
                         {% if stage.data_flow %}
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-2">
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">
                                 <i class="fas fa-exchange-alt me-2"></i>数据流向
                             </h5>
                             <div class="card bg-light">
-                                <div class="card-body">
-                                    <p class="card-text mb-0" style="white-space: pre-wrap;">{{ stage.data_flow }}</p>
+                                <div class="card-body py-4">
+                                    <p class="card-text mb-0" style="white-space: pre-wrap; line-height: 1.8;">{{ stage.data_flow }}</p>
                                 </div>
                             </div>
                         </div>
                         {% endif %}
 
                         {% if stage.test_focus %}
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-2">
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">
                                 <i class="fas fa-crosshairs me-2"></i>测试重点
                             </h5>
                             <div class="card bg-info bg-opacity-10 border-info">
-                                <div class="card-body">
-                                    <p class="card-text mb-0 text-info" style="white-space: pre-wrap;">{{ stage.test_focus }}</p>
+                                <div class="card-body py-4">
+                                    <p class="card-text mb-0 text-info" style="white-space: pre-wrap; line-height: 1.8;">{{ stage.test_focus }}</p>
                                 </div>
                             </div>
                         </div>
                         {% endif %}
 
                         {% if stage.common_issues %}
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-2">
+                        <div class="mb-5">
+                            <h5 class="text-primary mb-3">
                                 <i class="fas fa-exclamation-triangle me-2"></i>常见问题
                             </h5>
                             <div class="card bg-warning bg-opacity-10 border-warning">
-                                <div class="card-body">
-                                    <p class="card-text mb-0" style="white-space: pre-wrap;">{{ stage.common_issues }}</p>
+                                <div class="card-body py-4">
+                                    <p class="card-text mb-0" style="white-space: pre-wrap; line-height: 1.8;">{{ stage.common_issues }}</p>
                                 </div>
                             </div>
                         </div>

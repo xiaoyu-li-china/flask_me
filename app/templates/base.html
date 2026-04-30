@@ -62,6 +62,20 @@
                             <i class="fas fa-vial me-1"></i>测试知识体系
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'main.permission_center' %}active{% endif %}"
+                           href="{{ url_for('main.permission_center') }}">
+                            <i class="fas fa-user-shield me-1"></i>权限页面
+                        </a>
+                    </li>
+                    {% if current_user.is_admin %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ['main.test_case_upload_module', 'main.upload_test_case', 'main.uploaded_test_cases_list', 'main.uploaded_test_case_detail', 'main.uploaded_test_case_indexed'] %}active{% endif %}"
+                           href="{{ url_for('main.test_case_upload_module') }}">
+                            <i class="fas fa-cloud-upload-alt me-1"></i>上传测试用例
+                        </a>
+                    </li>
+                    {% endif %}
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
@@ -69,6 +83,11 @@
                     <li class="nav-item">
                         <span class="nav-link text-light">
                             <i class="fas fa-user me-1"></i>{{ current_user.username }}
+                            {% if current_user.is_admin %}
+                            <span class="badge bg-warning text-dark ms-1">admin</span>
+                            {% else %}
+                            <span class="badge bg-light text-dark ms-1">user</span>
+                            {% endif %}
                         </span>
                     </li>
                     <li class="nav-item">
@@ -81,6 +100,12 @@
                         <a class="nav-link {% if request.endpoint == 'auth.login' %}active{% endif %}" 
                            href="{{ url_for('auth.login') }}">
                             <i class="fas fa-sign-in-alt me-1"></i>登录
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'auth.register' %}active{% endif %}"
+                           href="{{ url_for('auth.register') }}">
+                            <i class="fas fa-user-plus me-1"></i>注册
                         </a>
                     </li>
                     {% endif %}

@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.test_case_upload_module') }}">
+                        <i class="fas fa-cloud-upload-alt me-1"></i>上传测试用例模块
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.uploaded_test_cases_list') }}">
+                        <i class="fas fa-upload me-1"></i>已上传测试用例
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-cloud-upload-alt me-1"></i>上传测试用例
+                </li>
+            </ol>
+        </nav>
+
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-cloud-upload-alt me-2"></i>上传测试用例
+        </h2>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-import me-2"></i>文件上传
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data" action="{{ url_for('main.upload_test_case_post') }}">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">
+                                    <i class="fas fa-heading me-1"></i>测试用例标题
+                                </label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="例如：CEX用户注册流程测试用例">
+                                <small class="text-muted">留空则使用文件名作为标题</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-info-circle me-1"></i>描述
+                                </label>
+                                <textarea class="form-control" id="description" name="description" rows="3"
+                                          placeholder="描述这个测试用例文件的内容..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="module" class="form-label">
+                                            <i class="fas fa-layer-group me-1"></i>所属模块
+                                        </label>
+                                        <select class="form-select" id="module" name="module">
+                                            <option value="">请选择模块（可选）</option>
+                                            {% for m in modules %}
+                                            <option value="{{ m.name }}">{{ m.display_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="category" class="form-label">
+                                            <i class="fas fa-tag me-1"></i>分类
+                                        </label>
+                                        <select class="form-select" id="category" name="category">
+                                            <option value="">请先选择所属模块</option>
+                                        </select>
+                                        <small class="text-muted">分类会根据所选模块自动加载</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="file" class="form-label">
+                                    <i class="fas fa-paperclip me-1"></i>选择文件
+                                </label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" id="file" name="file" 
+                                           accept=".xlsx,.xls,.xmind" required>
+                                    <label class="input-group-text" for="file">
+                                        <i class="fas fa-upload"></i>
+                                    </label>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="badge bg-info">支持格式：</span>
+                                    <span class="text-muted">Excel (.xlsx, .xls)、XMind (.xmind)</span>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{{ url_for('main.uploaded_test_cases_list') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times me-1"></i>取消
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-cloud-upload-alt me-1"></i>上传并解析
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>上传说明
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>Excel文件：</strong>支持.xlsx和.xls格式
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>XMind文件：</strong>支持.xmind格式
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                <strong>文件大小：</strong>最大50MB
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-excel me-2"></i>Excel格式说明
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-muted mb-2">Excel文件应包含以下列（列名可灵活匹配）：</p>
+                        <ul class="list-unstyled small">
+                            <li class="mb-1"><code>用例标题</code> / <code>Title</code> - 测试用例标题</li>
+                            <li class="mb-1"><code>测试步骤</code> / <code>Steps</code> - 测试步骤</li>
+                            <li class="mb-1"><code>预期结果</code> / <code>Expected</code> - 预期结果</li>
+                            <li class="mb-1"><code>优先级</code> / <code>Priority</code> - 优先级</li>
+                            <li class="mb-1"><code>模块</code> / <code>Module</code> - 所属模块</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const moduleSelect = document.getElementById('module');
+    const categorySelect = document.getElementById('category');
+    const moduleCategories = {{ module_categories | tojson }};
+
+    function refreshCategoryOptions() {
+        const selectedModule = moduleSelect.value;
+        const categories = moduleCategories[selectedModule] || [];
+
+        categorySelect.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = selectedModule ? '请选择分类（可选）' : '请先选择所属模块';
+        categorySelect.appendChild(defaultOption);
+
+        categories.forEach(function(category) {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelect.appendChild(option);
+        });
+    }
+
+    moduleSelect.addEventListener('change', refreshCategoryOptions);
+    refreshCategoryOptions();
+});
+</script>
+{% endblock %}

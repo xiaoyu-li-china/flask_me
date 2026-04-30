@@ -15,9 +15,19 @@ with app.app_context():
     if not admin:
         admin = User(username='admin')
         admin.set_password('admin123')
+        admin.is_admin = True
         db.session.add(admin)
-        db.session.commit()
         print('Default admin user created')
+
+    user = User.query.filter_by(username='user').first()
+    if not user:
+        user = User(username='user')
+        user.set_password('user123')
+        user.is_admin = False
+        db.session.add(user)
+        print('Default user created')
+
+    db.session.commit()
 
 if __name__ == "__main__":
     app.run()

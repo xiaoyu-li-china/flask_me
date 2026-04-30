@@ -28,8 +28,17 @@
                             <a href="{{ url_for('main.transaction_lifecycle') }}" class="btn btn-outline-primary">
                                 <i class="fas fa-rotate me-2"></i>Web3公链交易生命周期
                             </a>
+                            <a href="{{ url_for('main.cex_contract_lifecycle') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-file-contract me-2"></i>CEX合约生命周期&合约种类
+                            </a>
+                            <a href="{{ url_for('main.spot_trading_lifecycle') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-chart-line me-2"></i>币币交易生命周期
+                            </a>
                             <a href="{{ url_for('main.table_relationships') }}" class="btn btn-outline-primary">
                                 <i class="fas fa-project-diagram me-2"></i>表格关系与数据流程
+                            </a>
+                            <a href="{{ url_for('main.wallet_cex_dex_relationships') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-network-wired me-2"></i>钱包、CEX、DEX与公链关系
                             </a>
                         </div>
                     </div>
@@ -119,8 +128,8 @@
                 <div class="row text-center">
                     <div class="col-md-3 col-6 mb-3">
                         <div class="p-3 bg-primary bg-opacity-10 rounded">
-                            <h3 class="text-primary mb-1">{{ stats.total or 0 }}</h3>
-                            <small class="text-muted">总测试用例数</small>
+                            <h3 class="text-dark mb-1">{{ stats.total or 0 }}</h3>
+                            <small class="text-dark">总测试用例数</small>
                         </div>
                     </div>
                     <div class="col-md-3 col-6 mb-3">

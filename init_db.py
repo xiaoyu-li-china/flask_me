@@ -7,7 +7,8 @@ from app.models import (
     TransactionLifecycleStage, TableRelationship,
     PerformanceTestCase, TestType, TestProcess,
     APIAutomationFramework, TestTheory,
-    TestCaseDesign, QAQCAnalysis
+    TestCaseDesign, QAQCAnalysis,
+    ContractType, TestUpload
 )
 
 app = create_app()
@@ -19,7 +20,21 @@ with app.app_context():
     if not admin:
         admin = User(username='admin')
         admin.set_password('admin123')
+        admin.is_admin = True
         db.session.add(admin)
+    else:
+        if not admin.is_admin:
+            admin.is_admin = True
+
+    normal_user = User.query.filter_by(username='user').first()
+    if not normal_user:
+        normal_user = User(username='user')
+        normal_user.set_password('user123')
+        normal_user.is_admin = False
+        db.session.add(normal_user)
+    else:
+        if normal_user.is_admin:
+            normal_user.is_admin = False
     
     sample_projects = [
         Project(
@@ -249,8 +264,9 @@ with app.app_context():
         if not existing:
             db.session.add(m)
     
-    transaction_lifecycle_stages = [
+    web3_transaction_lifecycle_stages = [
         TransactionLifecycleStage(
+            lifecycle_type='web3_chain',
             stage_name='交易构造',
             stage_order=1,
             description='用户或应用程序构造一笔区块链交易，包含所有必要字段',
@@ -261,6 +277,7 @@ with app.app_context():
             common_issues='nonce重复/跳过、gasPrice过低、gasLimit不足、chainId不匹配'
         ),
         TransactionLifecycleStage(
+            lifecycle_type='web3_chain',
             stage_name='交易签名',
             stage_order=2,
             description='使用私钥对交易进行签名，确保交易的完整性和身份验证',
@@ -271,6 +288,7 @@ with app.app_context():
             common_issues='签名失败、签名格式错误、私钥泄露风险'
         ),
         TransactionLifecycleStage(
+            lifecycle_type='web3_chain',
             stage_name='交易广播',
             stage_order=3,
             description='将签名后的交易广播到区块链网络中的节点',
@@ -281,6 +299,7 @@ with app.app_context():
             common_issues='网络超时、节点不接收、广播后消失'
         ),
         TransactionLifecycleStage(
+            lifecycle_type='web3_chain',
             stage_name='内存池等待',
             stage_order=4,
             description='交易进入节点的内存池，等待被矿工打包',
@@ -291,6 +310,7 @@ with app.app_context():
             common_issues='mempool满被踢出、长时间pending、被替换风险'
         ),
         TransactionLifecycleStage(
+            lifecycle_type='web3_chain',
             stage_name='交易打包',
             stage_order=5,
             description='矿工选择内存池中的交易，打包进新的区块',
@@ -301,6 +321,7 @@ with app.app_context():
             common_issues='交易未被选中、区块gas耗尽、共识延迟'
         ),
         TransactionLifecycleStage(
+            lifecycle_type='web3_chain',
             stage_name='区块传播与验证',
             stage_order=6,
             description='新区块在网络中传播，其他节点验证区块有效性',
@@ -311,6 +332,7 @@ with app.app_context():
             common_issues='分叉、双花、重组风险'
         ),
         TransactionLifecycleStage(
+            lifecycle_type='web3_chain',
             stage_name='交易确认',
             stage_order=7,
             description='随着后续区块的生成，交易获得确认数增加',
@@ -322,10 +344,272 @@ with app.app_context():
         )
     ]
     
-    for s in transaction_lifecycle_stages:
-        existing = TransactionLifecycleStage.query.filter_by(stage_name=s.stage_name).first()
+    for s in web3_transaction_lifecycle_stages:
+        existing = TransactionLifecycleStage.query.filter_by(
+            lifecycle_type=s.lifecycle_type,
+            stage_name=s.stage_name
+        ).first()
         if not existing:
             db.session.add(s)
+    
+    cex_contract_lifecycle_stages = [
+        TransactionLifecycleStage(
+            lifecycle_type='cex_contract',
+            stage_name='开仓准备',
+            stage_order=1,
+            description='用户在CEX开立合约仓位前的准备阶段，包括选择交易对、设置杠杆倍数、选择保证金模式等',
+            key_concepts='交易对选择、杠杆倍数、保证金模式、逐仓/全仓、合约类型',
+            involved_tables='user_accounts, contract_settings, trading_pairs',
+            data_flow='用户选择交易对 → 设置杠杆倍数 → 选择保证金模式 → 确认开仓参数',
+            test_focus='杠杆倍数限制、保证金模式切换、交易对状态检查、风险提示显示',
+            common_issues='杠杆倍数超出限制、保证金模式切换失败、交易对已停牌'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='cex_contract',
+            stage_name='订单创建与保证金冻结',
+            stage_order=2,
+            description='用户创建合约订单，系统计算所需保证金并冻结用户账户余额',
+            key_concepts='初始保证金、维持保证金、开仓价格、订单类型、数量',
+            involved_tables='user_accounts, orders, margin_records, frozen_balances',
+            data_flow='用户输入订单参数 → 系统计算所需保证金 → 检查账户余额 → 冻结保证金 → 创建订单',
+            test_focus='保证金计算准确性、余额不足处理、部分成交保证金计算、保证金冻结/解冻时机',
+            common_issues='保证金计算错误、余额不足但订单创建成功、冻结金额不正确'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='cex_contract',
+            stage_name='撮合与开仓',
+            stage_order=3,
+            description='合约订单进入撮合引擎，与对手方订单匹配成交，成功后开立合约仓位',
+            key_concepts='价格时间优先、撮合成交、开仓均价、持仓数量、未实现盈亏',
+            involved_tables='order_book, trades, contract_positions, user_accounts',
+            data_flow='订单进入撮合引擎 → 价格时间优先匹配 → 撮合成交 → 创建/更新持仓 → 更新订单状态',
+            test_focus='撮合算法正确性、部分成交处理、开仓均价计算、持仓数量更新、成交记录创建',
+            common_issues='撮合顺序错误、部分成交逻辑错误、开仓均价计算错误'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='cex_contract',
+            stage_name='持仓管理',
+            stage_order=4,
+            description='用户持有合约仓位期间的管理，包括未实现盈亏计算、标记价格更新、保证金率监控等',
+            key_concepts='标记价格、未实现盈亏、保证金率、维持保证金、风险预警',
+            involved_tables='contract_positions, mark_prices, user_accounts, risk_alerts',
+            data_flow='标记价格更新 → 计算未实现盈亏 → 更新账户权益 → 计算保证金率 → 风险预警检查',
+            test_focus='标记价格获取、未实现盈亏计算、保证金率计算、风险预警触发、全仓/逐仓模式差异',
+            common_issues='未实现盈亏计算错误、保证金率计算错误、风险预警未触发'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='cex_contract',
+            stage_name='资金费用结算',
+            stage_order=5,
+            description='永续合约每8小时进行一次资金费用结算，多空双方根据资金费率互相支付费用',
+            key_concepts='资金费率、溢价指数、资金费用时间点、多空支付方向',
+            involved_tables='funding_fees, contract_positions, user_accounts, funding_rate_history',
+            data_flow='计算资金费率 → 检查持仓越过资金费用时间点 → 计算应付/应收资金费用 → 更新账户余额 → 记录资金费用',
+            test_focus='资金费率计算、资金费用收取/支付、时间点判断、历史记录、资金费率为负的情况',
+            common_issues='资金费率计算错误、资金费用收取方向错误、未持有仓位却被收取费用'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='cex_contract',
+            stage_name='平仓与结算',
+            stage_order=6,
+            description='用户手动平仓或被强制平仓，系统计算实现盈亏并结算，更新账户余额',
+            key_concepts='平仓价格、实现盈亏、结算、平仓手续费、强制平仓',
+            involved_tables='contract_positions, orders, trades, user_accounts, settlement_records',
+            data_flow='用户创建平仓订单 → 撮合成交 → 计算实现盈亏 → 扣除手续费 → 更新账户余额 → 关闭/更新持仓',
+            test_focus='平仓撮合逻辑、实现盈亏计算、手续费扣除、强制平仓触发、部分平仓处理',
+            common_issues='实现盈亏计算错误、强制平仓触发条件错误、平仓后持仓未正确关闭'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='cex_contract',
+            stage_name='强制平仓',
+            stage_order=7,
+            description='当用户保证金率低于维持保证金率时，系统触发强制平仓，接管用户仓位并在市场上平仓',
+            key_concepts='强制平仓价格、维持保证金率、保险基金、自动减仓、穿仓分摊',
+            involved_tables='contract_positions, liquidation_records, insurance_fund, user_accounts',
+            data_flow='监控保证金率 → 低于维持保证金率 → 触发强平 → 接管仓位 → 市场平仓 → 使用保险基金弥补亏损 → 如有剩余返还用户',
+            test_focus='强平触发条件、强平价格计算、保险基金使用、自动减仓逻辑、穿仓分摊',
+            common_issues='强平触发过早/过晚、强平价格计算错误、保险基金使用不当'
+        )
+    ]
+    
+    for s in cex_contract_lifecycle_stages:
+        existing = TransactionLifecycleStage.query.filter_by(
+            lifecycle_type=s.lifecycle_type,
+            stage_name=s.stage_name
+        ).first()
+        if not existing:
+            db.session.add(s)
+    
+    spot_trading_lifecycle_stages = [
+        TransactionLifecycleStage(
+            lifecycle_type='spot_trading',
+            stage_name='订单创建',
+            stage_order=1,
+            description='用户在CEX创建币币交易订单，选择交易对、订单类型、价格、数量等参数',
+            key_concepts='交易对、订单类型、限价单、市价单、止损单、订单有效期',
+            involved_tables='user_accounts, orders, trading_pairs',
+            data_flow='用户选择交易对 → 选择订单类型 → 输入价格/数量 → 确认订单 → 系统校验参数',
+            test_focus='交易对状态检查、订单类型支持、价格精度校验、数量精度校验、订单有效期设置',
+            common_issues='交易对已停牌但仍可下单、价格精度处理错误、数量精度处理错误'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='spot_trading',
+            stage_name='余额冻结',
+            stage_order=2,
+            description='系统根据订单类型冻结用户账户中相应的资产，确保订单有足够的资金可以成交',
+            key_concepts='可用余额、冻结余额、冻结金额计算、部分成交冻结',
+            involved_tables='user_accounts, frozen_balances, account_journals',
+            data_flow='检查可用余额 → 计算所需冻结金额 → 冻结余额 → 记录账户流水 → 更新订单状态',
+            test_focus='余额不足处理、冻结金额计算、部分成交后冻结金额调整、冻结/解冻时机',
+            common_issues='余额不足但订单创建成功、冻结金额计算错误、解冻不及时'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='spot_trading',
+            stage_name='订单簿入队',
+            stage_order=3,
+            description='订单进入订单簿等待撮合，限价单如果不能立即成交则进入订单簿，市价单立即撮合',
+            key_concepts='订单簿、买一价、卖一价、深度、价格档位',
+            involved_tables='order_book, orders',
+            data_flow='判断是否可立即成交 → 限价单：价格不优则进入订单簿 → 市价单：立即撮合 → 更新订单状态',
+            test_focus='订单簿数据结构、价格档位维护、订单排序、订单簿快照、深度计算',
+            common_issues='订单排序错误、订单簿深度计算错误、订单状态更新不及时'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='spot_trading',
+            stage_name='交易撮合',
+            stage_order=4,
+            description='撮合引擎按照价格优先、时间优先的原则，匹配买单和卖单，生成成交记录',
+            key_concepts='价格优先、时间优先、撮合算法、成交价格、部分成交',
+            involved_tables='order_book, orders, trades',
+            data_flow='新订单进入 → 价格时间优先匹配对手方 → 计算成交价格和数量 → 生成成交记录 → 更新订单状态 → 处理剩余数量',
+            test_focus='撮合顺序、成交价格确定、部分成交处理、多笔成交记录、成交推送',
+            common_issues='撮合顺序错误、成交价格计算错误、部分成交逻辑错误'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='spot_trading',
+            stage_name='成交结算',
+            stage_order=5,
+            description='订单成交后，系统进行资金结算，更新买卖双方的账户余额，扣除手续费',
+            key_concepts='成交金额、手续费、Maker/Taker、账户流水、结算确认',
+            involved_tables='trades, user_accounts, account_journals, fee_records',
+            data_flow='获取成交信息 → 计算成交金额 → 计算手续费 → 更新买方账户 → 更新卖方账户 → 记录账户流水 → 记录手续费',
+            test_focus='成交金额计算、手续费计算、账户余额更新、Maker/Taker区分、流水记录完整性',
+            common_issues='成交金额计算错误、手续费扣除错误、余额更新不一致'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='spot_trading',
+            stage_name='订单完成',
+            stage_order=6,
+            description='订单全部成交、部分成交后撤单、或用户主动撤单，订单生命周期结束',
+            key_concepts='全部成交、部分成交、撤单、订单状态、冻结金额解冻',
+            involved_tables='orders, user_accounts, frozen_balances',
+            data_flow='检查订单状态 → 全部成交：标记为已完成 → 部分成交：用户可撤单 → 用户撤单：解冻剩余冻结金额 → 标记订单状态',
+            test_focus='撤单权限检查、部分成交后撤单、冻结金额解冻、订单状态流转、撤单后撮合停止',
+            common_issues='撤单后订单仍被撮合、冻结金额未完全解冻、订单状态流转错误'
+        ),
+        TransactionLifecycleStage(
+            lifecycle_type='spot_trading',
+            stage_name='订单取消',
+            stage_order=7,
+            description='用户主动取消未成交或部分成交的订单，系统解冻冻结的余额并更新订单状态',
+            key_concepts='主动撤单、撤单权限、部分成交撤单、冻结解冻',
+            involved_tables='orders, user_accounts, frozen_balances, cancel_records',
+            data_flow='用户请求撤单 → 检查订单状态 → 检查撤单权限 → 从订单簿移除订单 → 解冻冻结金额 → 更新订单状态 → 记录撤单日志',
+            test_focus='撤单权限、部分成交撤单处理、冻结金额解冻、订单簿更新、撤单后成交处理',
+            common_issues='撤单后仍有成交、冻结金额未正确解冻、订单簿未正确更新'
+        )
+    ]
+    
+    for s in spot_trading_lifecycle_stages:
+        existing = TransactionLifecycleStage.query.filter_by(
+            lifecycle_type=s.lifecycle_type,
+            stage_name=s.stage_name
+        ).first()
+        if not existing:
+            db.session.add(s)
+    
+    contract_types = [
+        ContractType(
+            name='perpetual',
+            display_name='永续合约',
+            description='永续合约是一种没有到期日的期货合约，用户可以长期持有。通过资金费率机制使合约价格锚定现货价格，是目前最主流的合约类型。',
+            key_features='无到期日、资金费率机制、锚定现货价格、可长期持有、支持多空双向',
+            settlement_type='现金结算',
+            margin_mode='逐仓/全仓',
+            risk_characteristics='资金费率风险、高杠杆风险、强平风险、价格波动风险',
+            test_scenarios='1. 开仓/平仓测试\n2. 资金费率收取测试\n3. 强制平仓测试\n4. 标记价格更新测试\n5. 保证金率计算测试',
+            sort_order=1
+        ),
+        ContractType(
+            name='delivery_future',
+            display_name='交割合约',
+            description='交割合约有固定的到期日，到期时会按照约定价格进行实物交割或现金交割。分为当周、次周、当季、次季等不同周期。',
+            key_features='固定到期日、交割结算、基差交易、周期选择、到期强制平仓',
+            settlement_type='实物交割/现金交割',
+            margin_mode='逐仓/全仓',
+            risk_characteristics='到期风险、基差风险、交割风险、流动性风险',
+            test_scenarios='1. 交割流程测试\n2. 到期结算测试\n3. 交割价格计算测试\n4. 展期操作测试\n5. 不同周期合约切换',
+            sort_order=2
+        ),
+        ContractType(
+            name='inverse',
+            display_name='反向合约',
+            description='反向合约使用加密货币作为保证金和结算货币，盈亏以标的货币计算。例如BTC反向合约，用户用BTC作为保证金，盈亏也以BTC计算。',
+            key_features='标的货币保证金、盈亏反向计算、非线性盈亏、适合套期保值',
+            settlement_type='标的货币结算',
+            margin_mode='逐仓/全仓',
+            risk_characteristics='非线性盈亏风险、保证金价值波动、复杂计算风险',
+            test_scenarios='1. 保证金计算测试\n2. 盈亏计算测试\n3. 强平价格计算测试\n4. 与正向合约对比测试\n5. 套期保值场景测试',
+            sort_order=3
+        ),
+        ContractType(
+            name='linear',
+            display_name='正向合约',
+            description='正向合约使用稳定币（如USDT）作为保证金和结算货币，盈亏以稳定币计算。是目前最主流的合约类型，用户更容易理解。',
+            key_features='稳定币保证金、线性盈亏、USDT本位、易于理解、适合新手',
+            settlement_type='稳定币结算',
+            margin_mode='逐仓/全仓',
+            risk_characteristics='线性盈亏、稳定币汇率风险、强平风险',
+            test_scenarios='1. 开仓保证金计算测试\n2. 实现盈亏计算测试\n3. 未实现盈亏计算测试\n4. 强平触发测试\n5. 与反向合约对比测试',
+            sort_order=4
+        ),
+        ContractType(
+            name='option',
+            display_name='期权合约',
+            description='期权合约赋予买方在未来某个时间以约定价格买入或卖出标的资产的权利，但不是义务。分为看涨期权和看跌期权。',
+            key_features='权利金、行权价格、到期日、看涨/看跌、买方/卖方',
+            settlement_type='现金结算/实物交割',
+            margin_mode='卖方需要保证金',
+            risk_characteristics='时间价值衰减、波动率风险、无限损失风险（卖方）、有限损失（买方）',
+            test_scenarios='1. 期权定价测试\n2. 权利金计算测试\n3. 行权流程测试\n4. 到期结算测试\n5. 波动率影响测试',
+            sort_order=5
+        ),
+        ContractType(
+            name='leveraged_token',
+            display_name='杠杆代币',
+            description='杠杆代币是一种带杠杆的代币产品，通过自动再平衡机制维持目标杠杆倍数。用户无需管理保证金和强平，操作简单。',
+            key_features='自动再平衡、目标杠杆、无保证金管理、无强平风险、每日复利',
+            settlement_type='代币净值',
+            margin_mode='无保证金',
+            risk_characteristics='杠杆衰减、复利风险、长期持有风险、净值偏离风险',
+            test_scenarios='1. 净值计算测试\n2. 再平衡机制测试\n3. 杠杆倍数维护测试\n4. 申购赎回测试\n5. 与传统合约对比测试',
+            sort_order=6
+        )
+    ]
+    
+    for ct in contract_types:
+        existing = ContractType.query.filter_by(name=ct.name).first()
+        if not existing:
+            db.session.add(ct)
+        else:
+            existing.display_name = ct.display_name
+            existing.description = ct.description
+            existing.key_features = ct.key_features
+            existing.settlement_type = ct.settlement_type
+            existing.margin_mode = ct.margin_mode
+            existing.risk_characteristics = ct.risk_characteristics
+            existing.test_scenarios = ct.test_scenarios
+            existing.sort_order = ct.sort_order
     
     table_relationships = [
         TableRelationship(

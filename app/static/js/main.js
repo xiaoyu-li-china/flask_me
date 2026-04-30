@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
-    const cardElements = document.querySelectorAll('.card');
+    const cardElements = document.querySelectorAll('.card.animate-on-scroll');
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'

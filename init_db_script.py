@@ -27,11 +27,24 @@ with app.app_context():
             print('Creating default admin user...')
             admin = User(username='admin')
             admin.set_password('admin123')
+            admin.is_admin = True
             db.session.add(admin)
             db.session.commit()
             print('Default admin user created successfully')
         else:
             print('Admin user already exists')
+
+        normal_user = User.query.filter_by(username='user').first()
+        if not normal_user:
+            print('Creating default normal user...')
+            normal_user = User(username='user')
+            normal_user.set_password('user123')
+            normal_user.is_admin = False
+            db.session.add(normal_user)
+            db.session.commit()
+            print('Default normal user created successfully')
+        else:
+            print('Normal user already exists')
 
         print('Adding sample projects...')
         sample_projects = [

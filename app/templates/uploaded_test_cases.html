@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.test_case_upload_module') }}">
+                        <i class="fas fa-cloud-upload-alt me-1"></i>上传测试用例模块
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <i class="fas fa-upload me-1"></i>已上传测试用例
+                </li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary mb-0">
+                <i class="fas fa-upload me-2"></i>已上传测试用例
+            </h2>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('main.upload_test_case') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>上传新测试用例
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">{{ stats.total }}</h3>
+                        <small class="opacity-75">总上传数</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">{{ stats.success }}</h3>
+                        <small class="opacity-75">解析成功</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">{{ stats.error }}</h3>
+                        <small class="opacity-75">解析失败</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h3 class="mb-0">{{ stats.processing }}</h3>
+                        <small class="opacity-75">处理中</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle text-muted mb-3">
+                        <i class="fas fa-filter me-1"></i>筛选条件：
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">按模块筛选：</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="{{ url_for('main.uploaded_test_cases_list') }}" 
+                                   class="btn {% if not current_module %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
+                                    全部
+                                </a>
+                                {% for m in modules %}
+                                <a href="{{ url_for('main.uploaded_test_cases_list', module=m.name, status=current_status) }}" 
+                                   class="btn {% if current_module == m.name %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
+                                    <i class="fas {{ m.icon }} me-1"></i>{{ m.display_name }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">按状态筛选：</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="{{ url_for('main.uploaded_test_cases_list', module=current_module) }}" 
+                                   class="btn {% if not current_status %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
+                                    全部状态
+                                </a>
+                                {% for s in statuses %}
+                                {% if s[0] %}
+                                <a href="{{ url_for('main.uploaded_test_cases_list', module=current_module, status=s[0]) }}" 
+                                   class="btn {% if current_status == s[0] %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
+                                    {% if s[0] == 'success' %}
+                                    <i class="fas fa-check-circle text-success me-1"></i>解析成功
+                                    {% elif s[0] == 'error' %}
+                                    <i class="fas fa-times-circle text-danger me-1"></i>解析失败
+                                    {% elif s[0] == 'processing' %}
+                                    <i class="fas fa-spinner text-warning me-1"></i>处理中
+                                    {% elif s[0] == 'pending' %}
+                                    <i class="fas fa-clock text-info me-1"></i>待处理
+                                    {% else %}
+                                    {{ s[0] }}
+                                    {% endif %}
+                                </a>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if uploads %}
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>标题</th>
+                                    <th>文件名</th>
+                                    <th>模块/分类</th>
+                                    <th>状态</th>
+                                    <th>上传时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for upload in uploads %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('main.uploaded_test_case_detail', upload_id=upload.id) }}" class="text-decoration-none fw-semibold">
+                                            {{ upload.title }}
+                                        </a>
+                                    </td>
+                                    <td class="text-muted small">{{ upload.file_name }}</td>
+                                    <td>
+                                        {% if upload.module %}
+                                        <span class="badge bg-success me-1">
+                                            {% for m in modules %}
+                                                {% if m.name == upload.module %}{{ m.display_name }}{% endif %}
+                                            {% endfor %}
+                                        </span>
+                                        {% endif %}
+                                        {% if upload.category %}
+                                        <span class="badge bg-info">
+                                            {{ upload.category }}
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if upload.status == 'success' %}bg-success{% elif upload.status == 'error' %}bg-danger{% elif upload.status == 'processing' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                            {% if upload.status == 'success' %}成功
+                                            {% elif upload.status == 'error' %}失败
+                                            {% elif upload.status == 'processing' %}处理中
+                                            {% else %}{{ upload.status }}
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted small">{{ upload.upload_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a href="{{ url_for('main.uploaded_test_case_detail', upload_id=upload.id) }}" class="btn btn-primary btn-sm">
+                                                详情
+                                            </a>
+                                            {% if upload.status == 'success' %}
+                                            <a href="{{ url_for('main.uploaded_test_case_indexed', upload_id=upload.id) }}" class="btn btn-outline-info btn-sm">
+                                                预览
+                                            </a>
+                                            {% endif %}
+                                            {% if current_user.is_admin %}
+                                            <form method="POST" action="{{ url_for('main.delete_uploaded_test_case', upload_id=upload.id) }}" onsubmit="return confirm('确认删除该上传记录吗？删除后不可恢复。');" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">删除</button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                暂无上传的测试用例
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('main.upload_test_case') }}" class="alert-link">点击此处上传</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -81,23 +81,17 @@ def blockchain_functional_tests():
     if category:
         query = query.filter_by(category=category)
     
+    if not module:
+        query = query.filter(
+            BlockChainTestCases.priority.in_(['P0', 'P1', 'P2', 'P3'])
+        )
+    
     test_cases = query.order_by(
         BlockChainTestCases.module,
         BlockChainTestCases.category,
         BlockChainTestCases.priority,
         BlockChainTestCases.created_at.desc()
     ).all()
-
-    # 在“全部分类”视图下，仅按「注册登录」分类隐藏非 P0 用例（避免误伤含 token/kyc/中文「中」等正文）。
-    # 适用：1) 全部模块；2) CEX 模块。
-    if (not module and not category) or (module == 'cex' and not category):
-        def _is_register_login_category_only(test_case):
-            return (test_case.category or '').strip() == '注册登录'
-
-        test_cases = [
-            case for case in test_cases
-            if (case.priority or '').strip().upper() == 'P0' or not _is_register_login_category_only(case)
-        ]
     
     modules = TestModule.query.filter(TestModule.name != 'performance').order_by(TestModule.sort_order).all()
     
@@ -113,7 +107,8 @@ def blockchain_functional_tests():
         indexed_uploads_query = indexed_uploads_query.filter_by(category=category)
     indexed_uploads = indexed_uploads_query.order_by(TestUpload.upload_time.desc()).all()
 
-    show_uploaded_excel_only = (module == 'cex' and category == '注册登录')
+    # 仅当“模块 + 分类”且存在成功上传记录时，才进入上传Excel预览样式。
+    show_uploaded_excel_only = False
     preview_upload = None
     preview_table_columns = [
         'TestCaseId', 'Module', 'SubModule', 'Title',
@@ -121,14 +116,16 @@ def blockchain_functional_tests():
     ]
     preview_table_rows = []
 
-    if show_uploaded_excel_only:
+    if module and category:
         preview_upload = TestUpload.query.filter_by(
             status='success',
             module=module,
             category=category
         ).order_by(TestUpload.upload_time.desc()).first()
 
-        if preview_upload and preview_upload.parsed_data:
+        show_uploaded_excel_only = bool(preview_upload)
+
+        if show_uploaded_excel_only and preview_upload.parsed_data:
             try:
                 parsed_data = json.loads(preview_upload.parsed_data)
                 for case in parsed_data.get('test_cases', []):

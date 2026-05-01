@@ -173,54 +173,90 @@ with app.app_context():
     
     sample_blockchain_tests = [
         BlockChainTestCases(
+            module='web3_chain',
             category='智能合约',
+            sub_category='ERC-20标准',
             title='ERC-20代币转账边界测试',
             description='测试ERC-20标准代币合约的转账功能边界情况，包括零地址转账、超额转账、approve/transferFrom流程等。',
+            preconditions='1. 已部署ERC-20代币合约\n2. 测试账户有代币余额\n3. 测试网络正常连接',
+            test_data='ERC-20合约地址、测试账户地址和私钥、测试代币数量',
+            priority='P0',
+            test_type='功能测试',
             test_steps='1. 部署ERC-20代币合约，初始供应量1000000枚\n2. 测试账户A向零地址(0x000...000)转账100枚\n3. 测试账户A向账户B转账超过余额的金额\n4. 测试账户A approve账户C 500枚额度\n5. 测试账户C通过transferFrom从A转账给B 300枚\n6. 测试账户C再次transferFrom超过剩余额度',
             expected_result='步骤2: 交易失败或抛出异常\n步骤3: 交易失败，余额不足\n步骤4: approve成功，allowance为500\n步骤5: transferFrom成功，A余额减少300，B增加300\n步骤6: 交易失败，额度不足',
             actual_tool='Hardhat',
             notes='在实际项目中发现的注意点：\n\n1. **零地址转账风险**：部分ERC-20实现未禁止向零地址转账，这会导致代币永久锁定。建议在合约中显式添加零地址检查。\n\n2. **approve frontrunning攻击**：当用户先approve 1000，后修改为500时，恶意观察者可以在两笔交易之间先转走1000，再转走500。建议使用increaseAllowance/decreaseAllowance模式。\n\n3. **decimal精度问题**：测试时务必注意代币的decimals，1枚代币实际是10^decimals单位。使用ethers.js的parseEther/formatEther工具避免手动计算错误。'
         ),
         BlockChainTestCases(
+            module='web3_chain',
             category='智能合约',
+            sub_category='安全漏洞',
             title='重入攻击(Reentrancy)漏洞测试',
             description='测试智能合约是否存在重入攻击漏洞，这是DAO攻击事件的根本原因。验证合约在调用外部合约前是否正确更新状态。',
+            preconditions='1. 已部署Vault合约\n2. 已部署Attacker攻击合约\n3. 测试账户有ETH余额',
+            test_data='Vault合约地址、Attacker合约地址、测试ETH数量',
+            priority='P0',
+            test_type='安全测试',
             test_steps='1. 部署一个简单的Vault合约，用户可存款和取款\n2. 部署恶意攻击合约Attacker\n3. Attacker合约向Vault存入1 ETH\n4. Attacker调用Vault.withdraw(1 ETH)\n5. 观察Attacker的fallback/receive函数是否再次调用withdraw\n6. 检查Vault合约最终余额和Attacker余额',
             expected_result='如果存在漏洞：Attacker可以多次取款，耗尽Vault资金\n如果已修复：Attacker只能取款一次，第二次取款失败',
             actual_tool='Truffle + Ganache',
             notes='在实际项目中发现的注意点：\n\n1. **Checks-Effects-Interactions模式**：必须严格遵循：先检查条件，再更新状态，最后与外部合约交互。这是防止重入的最有效方法。\n\n2. **ReentrancyGuard**：使用OpenZeppelin的ReentrancyGuard修饰符作为额外保护层，但不应替代Checks-Effects-Interactions模式。\n\n3. **transfer/send vs call**：.transfer()和.send()有2300 gas限制，原本设计用来防止重入。但EIP-2929后gas成本变化，建议使用.call并配合重入保护。\n\n4. **跨合约调用分析**：不仅要检查直接的外部调用，还要分析间接调用链。一个看似安全的调用可能触发另一个合约的恶意逻辑。'
         ),
         BlockChainTestCases(
+            module='web3_chain',
             category='共识机制',
+            sub_category='PoW共识',
             title='PoW网络51%算力攻击模拟',
             description='在私有测试网中模拟51%算力攻击场景，验证双花(Double Spending)攻击的可能性和防护措施。',
+            preconditions='1. 已启动PoW私有测试网\n2. 控制两个节点的算力\n3. 测试账户有BTC余额',
+            test_data='测试网节点配置、测试账户地址、测试BTC数量',
+            priority='P1',
+            test_type='安全测试',
             test_steps='1. 启动一个PoW私有测试网，初始难度较低\n2. 控制节点A拥有51%算力，节点B拥有49%\n3. 节点A在链A上向商家发送1 BTC购买商品\n4. 商家确认6个区块后发货\n5. 节点A开始在私有链B上挖矿，不包含步骤3的交易\n6. 节点A持续挖矿直到链B长度超过链A\n7. 节点A向全网广播链B\n8. 观察网络是否接受更长的链',
             expected_result='1. 初始链A被网络接受\n2. 节点A成功分叉出链B\n3. 当链B长度超过链A时，网络切换到链B\n4. 步骤3中的交易被回滚，节点A实现双花',
             actual_tool='Bitcoin Core RegTest',
             notes='在实际项目中发现的注意点：\n\n1. **确认数的重要性**：比特币建议6个确认，但对于高价值交易，建议等待更多确认。交易所通常要求10-100个确认。\n\n2. **算力分布监控**：实时监控网络算力分布。如果某一矿池接近50%，应警惕中心化风险。\n\n3. **最长链原则**：理解PoW的"最长链"实际是"累计工作量最大"的链。这是攻击成功的理论基础。\n\n4. **PoS的不同**：PoS共识机制(如以太坊)的攻击成本更高，攻击者需要质押大量代币，且有Slashing机制惩罚恶意行为。\n\n5. **Finality(最终性)**：追求即时最终性的共识算法(如PBFT)可以避免这类攻击，但牺牲了部分去中心化。'
         ),
         BlockChainTestCases(
+            module='web3_chain',
             category='RPC接口',
+            sub_category='交易接口',
             title='eth_call vs eth_sendTransaction差异测试',
             description='深入理解以太坊RPC接口中eth_call和eth_sendTransaction的区别，测试两者在状态修改、gas消耗、返回值等方面的不同行为。',
+            preconditions='1. 已部署Counter合约\n2. 测试账户有ETH余额\n3. 连接到以太坊节点',
+            test_data='Counter合约地址、测试账户地址和私钥',
+            priority='P1',
+            test_type='功能测试',
             test_steps='1. 部署一个简单的计数器合约Counter，包含：\n   - count() view函数返回当前值\n   - increment() 函数增加计数并返回新值\n2. 使用eth_call调用increment()\n3. 检查count值是否变化\n4. 使用eth_sendTransaction调用increment()\n5. 等待交易确认后检查count值\n6. 比较两者的返回值和gas消耗\n7. 测试在合约中发送ETH时的行为差异',
             expected_result='eth_call:\n- 状态不改变，count保持原值\n- 不消耗gas\n- 立即返回函数执行结果\n\neth_sendTransaction:\n- 状态被修改，count增加\n- 消耗gas\n- 返回交易哈希，需等待确认\n- 无法直接获取返回值(需通过事件或二次call)',
             actual_tool='Postman + Ganache',
             notes='在实际项目中发现的注意点：\n\n1. **返回值获取**：eth_sendTransaction不返回函数返回值，只能返回txHash。如需获取返回值，有三种方案：\n   - 使用事件(Event)\n   - 交易确认后再eth_call一次\n   - 使用eth_estimateGas模拟执行获取返回值\n\n2. **gas估计**：eth_call可以用来估计gas，但实际发送时仍可能失败(如状态变化导致的条件变化)。\n\n3. **节点同步状态**：eth_call使用的是节点当前状态。如果节点不同步，返回结果可能不准确。\n\n4. **安全性**：永远不要信任eth_call的结果作为最终状态验证，特别是在处理金融交易时。\n\n5. **Raw Transaction**：生产环境中通常使用eth_sendRawTransaction而非eth_sendTransaction，因为前者允许离线签名，更安全。'
         ),
         BlockChainTestCases(
+            module='web3_chain',
             category='Gas消耗',
+            sub_category='存储优化',
             title='存储优化与Gas成本分析',
             description='测试不同Solidity数据结构和存储模式的Gas消耗差异，包括storage vs memory、packing变量、映射vs数组等场景。',
+            preconditions='1. 已部署不同版本的存储合约\n2. 测试账户有ETH余额\n3. 配置了gas-reporter',
+            test_data='存储合约地址、测试账户地址和私钥',
+            priority='P2',
+            test_type='性能测试',
             test_steps='1. 编写多个版本的存储合约：\n   Version A: 单独的uint256变量\n   Version B: 使用Struct打包多个小变量\n   Version C: 使用mapping存储\n   Version D: 使用array存储\n\n2. 测试写入操作的Gas消耗：\n   - 写入一个新slot\n   - 更新已有slot\n   - 删除(清零)slot\n\n3. 测试读取操作的Gas消耗\n\n4. 测试数组push/pop的Gas\n\n5. 测试mapping的key不存在时的行为',
             expected_result='1. 256位对齐：同一slot内的变量共享存储，节省Gas\n2. SSTORE成本：新slot 20000 gas，更新 5000 gas，清零返还15000 gas\n3. SLOAD成本：固定2100 gas(EIP-2929后)\n4. mapping读取比数组随机访问更贵\n5. 数组push有额外的长度更新成本',
             actual_tool='Hardhat + gas-reporter',
             notes='在实际项目中发现的注意点：\n\n1. **Storage Packing**：合理排列变量顺序可以大幅节省Gas。例如，两个uint128可以打包进一个slot，但如果中间夹着一个uint256就不行。\n\n2. **内存vs存储**：memory操作比storage便宜得多。复杂计算应在memory中完成后一次性写入storage。\n\n3. **删除存储的Gas返还**：删除storage变量会返还Gas，但有上限(最多交易Gas的一半)。这意味着不能靠删除存储来赚钱。\n\n4. **Gas Token**：在Gas价格低时存储数据，价格高时删除获取返还。这是一种Gas套利策略，但EIP-3298后被移除。\n\n5. **冷读vs热读**：EIP-2929引入了访问列表，首次访问(冷)2100 gas，后续访问(热)100 gas。合理安排访问顺序可以优化。\n\n6. **代理模式的Gas**：委托调用(delegatecall)有额外的Gas开销，但存储在主合约中。需要权衡升级灵活性和Gas成本。'
         ),
         BlockChainTestCases(
+            module='web3_chain',
             category='智能合约',
+            sub_category='安全漏洞',
             title='整数溢出与下溢测试',
             description='测试Solidity 0.8.0前后版本对整数溢出的不同处理行为，验证SafeMath库的必要性和使用方法。',
+            preconditions='1. 已编译Solidity 0.7.0和0.8.0版本的合约\n2. 测试账户有ETH余额\n3. 连接到测试网络',
+            test_data='测试合约地址、测试账户地址和私钥',
+            priority='P1',
+            test_type='安全测试',
             test_steps='1. 编译Solidity 0.7.0版本的合约，包含：\n   function add(uint256 a, uint256 b) pure returns(uint256) { return a + b; }\n   function sub(uint256 a, uint256 b) pure returns(uint256) { return a - b; }\n\n2. 测试边界情况：\n   - add(type(uint256).max, 1)\n   - sub(0, 1)\n\n3. 编译Solidity 0.8.0版本的相同合约，重复测试\n\n4. 使用SafeMath库(0.7版本)测试相同场景\n\n5. 观察不同版本的行为差异',
             expected_result='Solidity 0.7.0 (无SafeMath):\n- 溢出/下溢静默发生，返回错误结果\n- add(MAX, 1) = 0\n- sub(0, 1) = MAX\n\nSolidity 0.8.0+:\n- 溢出/下溢自动revert\n- 交易失败\n\n使用SafeMath:\n- 显式检查，溢出时revert',
             actual_tool='Remix IDE + Hardhat',
@@ -239,42 +275,42 @@ with app.app_context():
         TestModule(
             name='web3_chain',
             display_name='Web3公链',
-            description='公链交易生命周期、区块确认、共识机制等核心概念测试',
+            description='涵盖公链核心概念测试：交易生命周期、区块确认、共识机制、智能合约、RPC接口、Gas消耗、钱包管理等。包括ETH/BTC等主流公链的功能测试、安全测试和性能测试。',
             icon='fa-link',
             sort_order=1
         ),
         TestModule(
             name='cex',
             display_name='CEX中心化交易所',
-            description='注册登录、KYC、用户资产、充提币、交易撮合等功能测试',
+            description='涵盖中心化交易所全流程测试：注册登录、KYC身份认证、用户资产管理、充提币流程、交易撮合引擎、订单管理、风控系统等核心功能模块测试。',
             icon='fa-building',
             sort_order=2
         ),
         TestModule(
             name='dex',
             display_name='DEX去中心化交易所',
-            description='钱包连接、流动性池、AMM模型、交易撮合等功能测试',
+            description='涵盖去中心化交易所核心测试：钱包连接协议、流动性池管理、AMM自动做市商模型、交易撮合机制、用户资产管理、治理投票、跨链桥等功能测试。',
             icon='fa-exchange-alt',
             sort_order=3
         ),
         TestModule(
             name='spot_trading',
             display_name='币币交易',
-            description='订单簿、撮合引擎、表格关系、交易流程等原理测试',
+            description='涵盖币币交易核心原理测试：订单类型与管理、撮合引擎算法、成交价格计算、账户余额管理、交易风控规则、订单簿深度管理等功能测试。',
             icon='fa-chart-line',
             sort_order=4
         ),
         TestModule(
             name='contract_trading',
             display_name='合约交易',
-            description='合约生命周期、开仓平仓、保证金、资金费率等原理测试',
+            description='涵盖合约交易全流程测试：合约生命周期、开仓平仓机制、保证金管理、资金费率计算、强制平仓触发、风险控制规则、合约类型差异等功能测试。',
             icon='fa-file-contract',
             sort_order=5
         ),
         TestModule(
             name='performance',
             display_name='性能测试',
-            description='并发测试、压力测试、性能优化策略、监控点等',
+            description='涵盖系统性能测试：并发用户测试、接口压力测试、数据库性能优化、系统监控指标、性能瓶颈分析、容量规划评估等性能相关测试。',
             icon='fa-tachometer-alt',
             sort_order=6
         )

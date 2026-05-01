@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+from sqlalchemy import text
 from app import create_app, db
 from app.models import (
     User, Project, Certificate, Achievement, 
@@ -17,6 +18,15 @@ with app.app_context():
     db.create_all()
     # 便于在 Render 日志中确认实际连的是 Postgres 还是 SQLite（避免 init 与 Web 连不同库）
     print(f"init_db: 数据库驱动={db.engine.url.drivername}", flush=True)
+    # Postgres 上若 user 表仍是旧版 VARCHAR(128)，Werkzeug3 scrypt 密码哈希会超长导致插入失败
+    if db.engine.url.drivername == 'postgresql':
+        try:
+            with db.engine.begin() as conn:
+                conn.execute(
+                    text('ALTER TABLE "user" ALTER COLUMN password_hash TYPE VARCHAR(512)')
+                )
+        except Exception as exc:
+            print(f'init_db: 调整 user.password_hash 列宽跳过（可能已是新宽度）: {exc}', flush=True)
     
     def sync_existing_record(existing_record, new_record):
         for column in new_record.__table__.columns:

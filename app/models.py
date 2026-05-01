@@ -10,7 +10,8 @@ def load_user(user_id):
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    # Werkzeug 3.x 默认 scrypt 等算法哈希长度可超过 128，Postgres 会按 VARCHAR 严格截断报错
+    password_hash = db.Column(db.String(512), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     
     def set_password(self, password):

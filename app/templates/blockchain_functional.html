@@ -28,10 +28,12 @@
                             <i class="fas fa-layer-group me-1"></i>按模块筛选：
                         </h6>
                         <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% if current_user.is_admin %}
                             <a href="{{ url_for('main.blockchain_functional_tests') }}" 
                                class="btn {% if not current_module %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
                                 全部模块
                             </a>
+                            {% endif %}
                             {% for m in modules %}
                             <a href="{{ url_for('main.blockchain_functional_tests', module=m.name) }}" 
                                class="btn {% if current_module == m.name %}btn-success{% else %}btn-outline-success{% endif %} btn-sm">
@@ -46,10 +48,12 @@
                             <i class="fas fa-filter me-1"></i>按分类筛选：
                         </h6>
                         <div class="d-flex flex-wrap gap-2">
+                            {% if current_module != 'cex' %}
                             <a href="{{ url_for('main.blockchain_functional_tests', module=current_module) }}" 
                                class="btn {% if not current_category %}btn-secondary{% else %}btn-outline-secondary{% endif %} btn-sm">
                                 全部分类
                             </a>
+                            {% endif %}
                             {% for m, cat in categories %}
                                 {% if m == current_module and cat %}
                                 <a href="{{ url_for('main.blockchain_functional_tests', module=current_module, category=cat) }}" 
@@ -100,6 +104,11 @@
                     </div>
                     {% endif %}
                 </div>
+            </div>
+        {% elif current_module == 'cex' and not current_category %}
+            <div class="alert alert-light border" role="alert">
+                <i class="fas fa-hand-pointer me-2 text-info"></i>
+                已进入 <strong>CEX 中心化交易所</strong> 功能测试。请先点击上方「按分类筛选」选择具体业务分类，将展示该分类下已上传的 Excel 测试用例（不再展示案例库中的卡片用例）。
             </div>
         {% elif test_cases %}
             <div class="row">

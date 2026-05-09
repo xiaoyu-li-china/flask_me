@@ -57,9 +57,10 @@
                             按业务模块划分的详细功能测试用例，包含前置条件、测试步骤、预期结果和实际项目经验。
                         </p>
                         <div class="d-grid gap-2">
-                            <a href="{{ url_for('main.blockchain_functional_tests') }}" class="btn btn-outline-success">
-                                <i class="fas fa-list me-2"></i>查看所有功能测试用例
+                            <a href="{{ url_for('main.blockchain_functional_tests', module='cex') if not current_user.is_admin else url_for('main.blockchain_functional_tests') }}" class="btn btn-outline-success">
+                                <i class="fas fa-list me-2"></i>{% if current_user.is_admin %}查看所有功能测试用例{% else %}CEX 中心化 · 功能测试用例{% endif %}
                             </a>
+                            {% if current_user.is_admin %}
                             <div class="row mt-2">
                                 <div class="col-6">
                                     <small class="text-muted">
@@ -78,15 +79,20 @@
                                 </div>
                                 <div class="col-6">
                                     <small class="text-muted">
-                                        <i class="fas fa-chart-line me-1"></i>币币交易
+                                        <i class="fas fa-chart-line me-1"></i>币币交易补充测试点
                                     </small>
                                 </div>
                                 <div class="col-6">
                                     <small class="text-muted">
-                                        <i class="fas fa-file-contract me-1"></i>合约交易
+                                        <i class="fas fa-file-contract me-1"></i>合约交易补充测试点
                                     </small>
                                 </div>
                             </div>
+                            {% else %}
+                            <p class="small text-muted mb-0 mt-2">
+                                <i class="fas fa-info-circle me-1"></i>当前账号仅开放 <strong>CEX 中心化交易所</strong> 功能测试模块。
+                            </p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

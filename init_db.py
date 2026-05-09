@@ -9,7 +9,8 @@ from app.models import (
     PerformanceTestCase, TestType, TestProcess,
     APIAutomationFramework, TestTheory,
     TestCaseDesign, QAQCAnalysis,
-    ContractType, TestUpload
+    ContractType, TestUpload,
+    ChecklistCategory, ChecklistItem
 )
 
 app = create_app()
@@ -91,6 +92,18 @@ with app.app_context():
             description='基于Xmind2testcase开源框架，实现测试用例模版化，帮助同事增加测试用例覆盖度。实现上下游测试用例模版化，提升测试用例覆盖率15%。',
             tech_stack='Python, Xmind2testcase, 测试用例管理',
             image_filename='project_testcase_template.jpg'
+        ),
+        Project(
+            title='公链节点部署与同步验证',
+            description='在测试网或私有化环境中完成全节点/归档节点部署与版本升级回滚演练；验证初始同步、断点续传、对等节点数与出块延迟；建立高度/哈希对账与磁盘、带宽、句柄等资源基线巡检，覆盖进程崩溃与机器重启后的自愈与追块。',
+            tech_stack='Docker, systemd, Geth/Reth/Besu, Prometheus, 区块浏览器',
+            image_filename='project_flask_reg.jpg'
+        ),
+        Project(
+            title='JSON-RPC 链上查询与网关服务测试',
+            description='对上游节点与自建 RPC 网关构建自动化回归：HTTP/HTTPS 与 WebSocket 的订阅稳定性、批量 JSON-RPC、超时重试与限流熔断；重点覆盖 eth_getLogs 起止块过大、地址/Topic 过滤组合、chainId 与 EIP-1559 字段一致性，以及重组(reorg)后查询结果与最终性策略对齐。',
+            tech_stack='Python, Postman, Pytest, Nginx, Redis 限流, Web3.py / ethers.js',
+            image_filename='project_api_auto.jpg'
         )
     ]
     
@@ -230,7 +243,7 @@ with app.app_context():
             test_steps='1. 部署一个简单的计数器合约Counter，包含：\n   - count() view函数返回当前值\n   - increment() 函数增加计数并返回新值\n2. 使用eth_call调用increment()\n3. 检查count值是否变化\n4. 使用eth_sendTransaction调用increment()\n5. 等待交易确认后检查count值\n6. 比较两者的返回值和gas消耗\n7. 测试在合约中发送ETH时的行为差异',
             expected_result='eth_call:\n- 状态不改变，count保持原值\n- 不消耗gas\n- 立即返回函数执行结果\n\neth_sendTransaction:\n- 状态被修改，count增加\n- 消耗gas\n- 返回交易哈希，需等待确认\n- 无法直接获取返回值(需通过事件或二次call)',
             actual_tool='Postman + Ganache',
-            notes='在实际项目中发现的注意点：\n\n1. **返回值获取**：eth_sendTransaction不返回函数返回值，只能返回txHash。如需获取返回值，有三种方案：\n   - 使用事件(Event)\n   - 交易确认后再eth_call一次\n   - 使用eth_estimateGas模拟执行获取返回值\n\n2. **gas估计**：eth_call可以用来估计gas，但实际发送时仍可能失败(如状态变化导致的条件变化)。\n\n3. **节点同步状态**：eth_call使用的是节点当前状态。如果节点不同步，返回结果可能不准确。\n\n4. **安全性**：永远不要信任eth_call的结果作为最终状态验证，特别是在处理金融交易时。\n\n5. **Raw Transaction**：生产环境中通常使用eth_sendRawTransaction而非eth_sendTransaction，因为前者允许离线签名，更安全。'
+            notes='在实际项目中发现的注意点：\n\n1. **返回值获取**：eth_sendTransaction不返回函数返回值，只能返回txHash。如需获取返回值，有三种方案：\n   - 使用事件(Event)\n   - 交易确认后再eth_call一次\n   - 使用eth_estimateGas模拟执行获取返回值\n\n2. **gas估计**：eth_call可以用来估计gas，但实际发送时仍可能失败(如状态变化导致的条件变化)。\n\n3. **节点同步状态**：eth_call使用的是节点当前状态。如果节点不同步，返回结果可能不准确。\n\n4. **安全性**：永远不要信任eth_call的结果作为最终状态验证，特别是在处理金融交易时。\n\n5. **Raw Transaction**：生产环境中通常使用eth_sendRawTransaction而非eth_sendTransaction，因为前者允许离线签名，更安全。\n\n6. **批量与网关**：经网关路由时注意 id 映射、超时与 HTTP 413/429；同一批次内切勿混用不同 chainId 的 endpoint。\n\n**关联实践项目**：JSON-RPC 链上查询与网关服务测试（项目展示页）。'
         ),
         BlockChainTestCases(
             module='web3_chain',
@@ -260,7 +273,52 @@ with app.app_context():
             test_steps='1. 编译Solidity 0.7.0版本的合约，包含：\n   function add(uint256 a, uint256 b) pure returns(uint256) { return a + b; }\n   function sub(uint256 a, uint256 b) pure returns(uint256) { return a - b; }\n\n2. 测试边界情况：\n   - add(type(uint256).max, 1)\n   - sub(0, 1)\n\n3. 编译Solidity 0.8.0版本的相同合约，重复测试\n\n4. 使用SafeMath库(0.7版本)测试相同场景\n\n5. 观察不同版本的行为差异',
             expected_result='Solidity 0.7.0 (无SafeMath):\n- 溢出/下溢静默发生，返回错误结果\n- add(MAX, 1) = 0\n- sub(0, 1) = MAX\n\nSolidity 0.8.0+:\n- 溢出/下溢自动revert\n- 交易失败\n\n使用SafeMath:\n- 显式检查，溢出时revert',
             actual_tool='Remix IDE + Hardhat',
-            notes='在实际项目中发现的注意点：\n\n1. **Solidity 0.8.0的内置检查**：0.8.0版本后，编译器默认插入溢出检查，但这会增加约5-10%的Gas成本。如果需要极致优化且有自信，可以用unchecked块。\n\n2. **unchecked块的风险**：unchecked块内不检查溢出，必须确保数学逻辑的安全性。常用于已验证边界的循环计数器。\n\n3. **不同整数类型**：uint8/uint16/uint32等小类型更容易溢出，尤其在累加操作中。建议使用uint256进行中间计算，最后再转换。\n\n4. **有符号整数的特殊性**：int类型的溢出行为与uint不同，且二补码表示容易出错。除非必要，优先使用uint。\n\n5. **升级合约的兼容性**：如果从0.7版本升级到0.8+，注意某些依赖溢出的"特性"会变成bug。例如，某些代币合约利用溢出实现特殊逻辑。\n\n6. **formatted audit**：审计时特别注意unchecked块和复杂的数学公式，建议使用形式化验证工具(如CertiK)验证关键数学逻辑。'
+            notes='在实际项目中发现的注意点：\n\n1. **Solidity 0.8.0的内置检查**：0.8.0版本后，编译器默认插入溢出检查，但这会增加约5-10%的Gas成本。如果需要极致优化且有自信，可以用unchecked块。\n\n2. **unchecked块的风险**：unchecked块内不检查溢出，必须确保数学逻辑的安全性。常用于已验证边界的循环计数器。\n\n3. **不同整数类型**：uint8/uint16/uint32等小类型更容易溢出，尤其在累加操作中。建议使用uint256进行中间计算，最后再转换。\n\n4. **有符号整数的特殊性**：int类型的溢出行为与uint不同，且二补码表示容易出错。除非必要，优先使用uint。\n\n5. **升级合约的兼容性**：如果从0.7版本升级到0.8+，注意某些依赖溢出的"特性"会变成bug。例如，某些代币合约利用溢出实现特殊逻辑。\n\n6. **formatted audit**：审计时特别注意unchecked块和复杂的数学公式，建议使用形式化验证工具(如CertiK)验证关键数学逻辑。\n\n**关联实践项目**：测试用例模版化系统 / Hardhat 合约流水线（可结合项目展示中的自动化与模版化实践）。'
+        ),
+        BlockChainTestCases(
+            module='web3_chain',
+            category='节点与网络',
+            sub_category='部署与同步',
+            title='全节点部署、同步进度与健康检查',
+            description='验证自建或托管全节点/验证者从创世或快照恢复后的同步行为，以及对等连接、链尖高度与本地状态是否一致，避免业务读到落后或损坏的链状态。',
+            preconditions='1. 已部署至少一个共识客户端+可选执行客户端（或单客户端架构）\n2. 具备访问 net_peerCount、eth_blockNumber、eth_syncing 等 RPC 的权限\n3. 有可对照的区块浏览器或第二独立节点',
+            test_data='节点配置文件、JWT/引擎 API 密钥、测试网 chainId、对照用 explorer 或备用 RPC',
+            priority='P0',
+            test_type='功能/可靠性测试',
+            test_steps='1. 记录启动后 eth_syncing：应经历从 false→同步中→false 的状态迁移（取决于初始数据量）\n2. 对比本地 eth_blockNumber 与权威浏览器/备用节点，误差应在可接受出块间隔内\n3. 模拟磁盘满、进程 kill -9、整机重启，验证恢复后能否继续追块且无 DB 损坏告警\n4. 检查日志中对等连接数过低、INVALID 区块、forkchoice 不合等错误\n5. 变更一小版本号做滚动升级与回滚演练，观察同步不受影响\n6. 对归档节点：验证历史 state 查询与全节点一致（若有该需求）',
+            expected_result='1. 同步完成后 eth_syncing 为 false（或客户端文档定义的完成态）\n2. 高度与对照源持续对齐，无长期落后\n3. 故障恢复后自动追块，无需人工数据目录清理（除非文档要求）\n4. 升级回滚路径在测试环境可重复执行',
+            actual_tool='Docker Compose / systemd + Geth、Reth、Besu 等官方发行版',
+            notes='测试注意点：\n\n1. **快照与检查点**：从快照启动可节省时间，但要校验快照来源与哈希，防止污染。\n2. **磁盘与 IO**：历史链数据量级极大，SSD、文件系统与 inode 需提前容量评估。\n3. **网络策略**：P2P 端口、出站限制会导致 peer 数长期为 0，需与运维协同排查。\n4. **时钟与 NTP**：验证者/共识节点对时钟敏感，漂移过大可能缺席出块。\n5. **多客户端生态**：执行层与共识层版本矩阵要在发布说明中逐项对齐，避免「能启动但不同步」。\n\n**关联实践项目**：公链节点部署与同步验证（项目展示页）。'
+        ),
+        BlockChainTestCases(
+            module='web3_chain',
+            category='RPC接口',
+            sub_category='事件与日志',
+            title='eth_getLogs 范围、过滤与重组一致性',
+            description='围绕事件索引与查询接口验证：地址与 Topic 组合、起止块跨度、429/超时与节点返回上限，以及链重组后已读日志与业务落库的最终性策略是否一致。',
+            preconditions='1. 已连接可写读的全节点或支持日志索引的 RPC\n2. 测试合约能产生多条带索引事件\n3. 可在测试网制造或观察短重组（或使用私链）',
+            test_data='合约地址、事件 ABI、fromBlock/toBlock 用例、地址列表与 Topic0/Topic1 组合',
+            priority='P0',
+            test_type='功能/接口测试',
+            test_steps='1. 单次查询极大块跨度，观察是否超时、截断或返回错误码\n2. 拆分多个小区间查询与单次大区间的结果 diff\n3. 仅填 address、仅填 topics、多地址 OR（若客户端支持）边界\n4. 区块边界上的日志：fromBlock=toBlock=最新块是否包含该块内交易日志\n5. 在可重组环境：记录某一 tx 的 logIndex，在浅重组后比对是否需业务侧回滚或重扫\n6. 与 eth_getTransactionReceipt 中 logs 字段逐字段对齐抽查',
+            expected_result='1. 文档化单次查询的块跨度与 QPS 限制，超出时有明确降级策略\n2. 拆分查询与单次查询在相同高度下日志集合一致\n3. 重组场景下业务侧「确认数」策略可解释、可回归\n4. receipt 与 getLogs 字段一致',
+            actual_tool='curl / Postman + Web3.py 脚本 + 自建索引对比（可选 The Graph）',
+            notes='测试注意点：\n\n1. **块范围**：过大范围易导致节点 OOM 或网关中断，生产应分页或流式消费。\n2. **removed 字段**：部分客户端在重组标记 removed log，消费方必须处理。\n3. **虚假安全**：仅靠「拿到日志」不够，需结合区块确认数或 finalized 标签（视链而定）。\n4. **匿名事件与未索引参数**：Topic 过滤行为与预期不符时优先核对 ABI。\n5. **Alchemy/Infura 等供应商**：免费层与公司层的返回限制不同，需在 CI 用接近生产的档位测。\n\n**关联实践项目**：JSON-RPC 链上查询与网关服务测试（项目展示页）。'
+        ),
+        BlockChainTestCases(
+            module='web3_chain',
+            category='RPC接口',
+            sub_category='WebSocket',
+            title='WebSocket 订阅（newHeads/logs）与断线恢复',
+            description='验证应用长连接订阅的稳定性：订阅 payload 格式、二进制帧、心跳与代理超时，以及断线重连后的 gap 补偿（补拉区块或重放 getLogs）。',
+            preconditions='1. 节点或网关开启 WebSocket\n2. 测试环境可持续出块\n3. 可模拟网络中断（防火墙、kill 连接）',
+            test_data='wss URL、订阅过滤器、重连退避策略配置',
+            priority='P1',
+            test_type='功能/稳定性测试',
+            test_steps='1. 建立 wss 连接，分别订阅 newHeads 与 logs（带 address/topics 过滤）\n2. 持续运行 ≥30 分钟，统计消息间隔与乱序/重复块哈希\n3. 中间主动断开 TCP，验证客户端指数退避重连是否生效\n4. 断连期间记录最后安全高度，重连后用 eth_getLogs 或 JSON-RPC batch 补齐缺口\n5. 经反向代理（Nginx）时调大 read_timeout，验证长连接不被误杀\n6. 多 Tab 或多进程重复订阅下的服务端资源占用',
+            expected_result='1. 订阅推送字段与 HTTP 轮询一致\n2. 可容忍短暂断连且不漏块（或在可控策略下可检测并告警漏块）\n3. 代理超时与客户端 keepalive 配置匹配\n4. 无内存泄漏或 goroutine/线程泄漏（服务端视角）',
+            actual_tool='wscat / Python websockets + Nginx + Pytest',
+            notes='测试注意点：\n\n1. **与 HTTP 混用**：同一后端 key 的 WS 与 REST 限流策略可能不同，要分别压测。\n2. **链 ID**：切换网络时必须重建订阅，防止张冠李戴。\n3. **处理 backlog**：高块速链上若处理慢于出块，需有队列与丢弃策略。\n4. **EIP-4844 等升级**：升级前后区块头字段变化要纳入契约测试。\n\n**关联实践项目**：JSON-RPC 链上查询与网关服务测试（项目展示页）。'
         )
     ]
     
@@ -275,7 +333,7 @@ with app.app_context():
         TestModule(
             name='web3_chain',
             display_name='Web3公链',
-            description='涵盖公链核心概念测试：交易生命周期、区块确认、共识机制、智能合约、RPC接口、Gas消耗、钱包管理等。包括ETH/BTC等主流公链的功能测试、安全测试和性能测试。',
+            description='涵盖公链全流程测试：交易生命周期与最终性、共识与重组风险、智能合约与 Gas、钱包与签名；节点侧含全节点/归档/验证者部署、同步与健康检查、版本升级与快照恢复；RPC 与应用侧含 JSON-RPC/WebSocket、批量与限流、eth_call 与发送交易差异、事件日志(eth_getLogs)与 trace/debug 类接口的正确性与边界。可与项目展示中的「公链节点部署与同步验证」「JSON-RPC 链上查询与网关服务测试」等实践结合回归。',
             icon='fa-link',
             sort_order=1
         ),
@@ -295,14 +353,14 @@ with app.app_context():
         ),
         TestModule(
             name='spot_trading',
-            display_name='币币交易',
+            display_name='币币交易补充测试点',
             description='涵盖币币交易核心原理测试：订单类型与管理、撮合引擎算法、成交价格计算、账户余额管理、交易风控规则、订单簿深度管理等功能测试。',
             icon='fa-chart-line',
             sort_order=4
         ),
         TestModule(
             name='contract_trading',
-            display_name='合约交易',
+            display_name='合约交易补充测试点',
             description='涵盖合约交易全流程测试：合约生命周期、开仓平仓机制、保证金管理、资金费率计算、强制平仓触发、风险控制规则、合约类型差异等功能测试。',
             icon='fa-file-contract',
             sort_order=5
@@ -354,8 +412,8 @@ with app.app_context():
             key_concepts='P2P网络、交易池、节点传播、eth_sendRawTransaction',
             involved_tables='transactions, network_nodes, mempool',
             data_flow='签名交易 → RPC/WS → 节点接收 → 网络广播',
-            test_focus='网络连接稳定性、广播成功率、节点同步状态',
-            common_issues='网络超时、节点不接收、广播后消失'
+            test_focus='网络连接稳定性、广播成功率、节点同步状态；经 RPC 网关时的重试退避、429/超时与 eth_sendRawTransaction 幂等',
+            common_issues='网络超时、节点不接收、广播后消失；多节点负载下 mempool 视图不一致'
         ),
         TransactionLifecycleStage(
             lifecycle_type='web3_chain',
@@ -839,7 +897,7 @@ with app.app_context():
             test_steps='1. 查询账户当前nonce值\n2. 构造第一笔交易，使用查询到的nonce\n3. 构造第二笔交易，使用nonce+1\n4. 构造第三笔交易，使用nonce+3（跳过一个nonce）\n5. 广播所有交易\n6. 观察交易状态和nonce变化',
             expected_result='1. 第一笔交易成功确认\n2. 第二笔交易成功确认\n3. 第三笔交易长时间pending，直到nonce+2的交易被处理\n4. 账户nonce正确递增',
             actual_tool='Web3.py + Goerli测试网',
-            notes='实际项目经验：\n\n1. **Nonce必须严格递增**：如果跳过某个nonce，后续所有交易都会卡住。这是最常见的问题之一。\n\n2. **并发交易处理**：同一账户同时发送多笔交易时，必须正确管理nonce。建议使用队列或锁机制。\n\n3. **Pending交易替换**：可以使用相同nonce但更高gasPrice的交易替换pending中的交易（RBF - Replace-By-Fee）。\n\n4. **交易取消**：实际上无法"取消"已广播的交易，只能用更高gasPrice发送一笔0值交易到自己地址来"覆盖"。\n\n5. **Nonce查询时机**：应该使用pending状态的nonce，而不是latest状态。在web3.py中使用get_transaction_count(address, "pending")。'
+            notes='实际项目经验：\n\n1. **Nonce必须严格递增**：如果跳过某个nonce，后续所有交易都会卡住。这是最常见的问题之一。\n\n2. **并发交易处理**：同一账户同时发送多笔交易时，必须正确管理nonce。建议使用队列或锁机制。\n\n3. **Pending交易替换**：可以使用相同nonce但更高gasPrice的交易替换pending中的交易（RBF - Replace-By-Fee）。\n\n4. **交易取消**：实际上无法"取消"已广播的交易，只能用更高gasPrice发送一笔0值交易到自己地址来"覆盖"。\n\n5. **Nonce查询时机**：应该使用pending状态的nonce，而不是latest状态。在web3.py中使用get_transaction_count(address, "pending")。\n\n6. **RPC 与多服务发送**：经负载均衡时可能打到不同节点、mempool 视图不一致，需在集成环境对「发交易 + 查 pending」做联合压测。\n\n**关联实践项目**：JSON-RPC 链上查询与网关服务测试。'
         ),
         BlockChainTestCases(
             module='web3_chain',
@@ -854,7 +912,7 @@ with app.app_context():
             test_steps='1. 使用eth_estimateGas估算gasLimit\n2. 设置gasPrice为网络平均值\n3. 发送交易观察结果\n4. 设置gasPrice过低（远低于网络平均）\n5. 发送交易观察结果\n6. 设置gasLimit过低（低于估算值）\n7. 发送交易观察结果',
             expected_result='1. 合理gas设置：交易成功确认\n2. gasPrice过低：长时间pending或失败\n3. gasLimit过低：交易失败（out of gas），已消耗的gas不返还',
             actual_tool='Ethers.js + Hardhat Network',
-            notes='实际项目经验：\n\n1. **Gas估算不是100%准确**：estimateGas可能因为状态变化而不准确，建议设置10-20%的缓冲。\n\n2. **Gas Price动态调整**：使用gas oracle或EIP-1559的maxPriorityFee/maxFee来动态设置。\n\n3. **EIP-1559 vs Legacy**：EIP-1559交易更高效，但需要确保节点支持。建议提供两种模式。\n\n4. **Out of Gas的危害**：不仅交易失败，已消耗的gas也不会返还。这会导致用户损失资金。\n\n5. **Gas refunds**：删除存储会有gas返还，但有上限（最多交易gas的一半）。不能以此作为盈利手段。'
+            notes='实际项目经验：\n\n1. **Gas估算不是100%准确**：estimateGas可能因为状态变化而不准确，建议设置10-20%的缓冲。\n\n2. **Gas Price动态调整**：使用gas oracle或EIP-1559的maxPriorityFee/maxFee来动态设置。\n\n3. **EIP-1559 vs Legacy**：EIP-1559交易更高效，但需要确保节点支持。建议提供两种模式。\n\n4. **Out of Gas的危害**：不仅交易失败，已消耗的gas也不会返还。这会导致用户损失资金。\n\n5. **Gas refunds**：删除存储会有gas返还，但有上限（最多交易gas的一半）。不能以此作为盈利手段。\n\n6. **费用类接口 SLA**：eth_feeHistory、eth_maxPriorityFeePerGas 等与钱包联动，需在节点升级后做回归。\n\n**关联实践项目**：JSON-RPC 链上查询与网关服务测试；Hardhat/本地分叉回归可结合「测试用例模版化系统」。'
         ),
         BlockChainTestCases(
             module='web3_chain',
@@ -869,7 +927,7 @@ with app.app_context():
             test_steps='1. 在链A上发送交易TX1\n2. 等待1个确认\n3. 在分叉链B上不包含TX1继续挖矿\n4. 链B超过链A长度\n5. 观察TX1的状态\n6. 测试不同确认数下的安全性',
             expected_result='1. 1个确认后交易可能被回滚\n2. 6个确认后安全性大幅提高\n3. 更长的确认数意味着更低的重组风险',
             actual_tool='Bitcoin RegTest + Ethereum Testnet',
-            notes='实际项目经验：\n\n1. **确认数不是绝对安全**：即使100个确认，理论上仍有重组可能，只是概率极低。\n\n2. **不同链的确认要求**：比特币建议6个确认，以太坊建议12-20个确认（PoS后最终性更快）。\n\n3. **交易所的确认策略**：不同交易所对不同币种有不同确认要求，高价值币种要求更多确认。\n\n4. **Finality（最终性）**：PoS链（如以太坊）有更强的最终性保证，Casper FFG确保区块最终确定后无法回滚。\n\n5. **重组监控**：生产环境应该监控区块重组，一旦发生深度重组（如3个以上区块）应立即告警。'
+            notes='实际项目经验：\n\n1. **确认数不是绝对安全**：即使100个确认，理论上仍有重组可能，只是概率极低。\n\n2. **不同链的确认要求**：比特币建议6个确认，以太坊建议12-20个确认（PoS后最终性更快）。\n\n3. **交易所的确认策略**：不同交易所对不同币种有不同确认要求，高价值币种要求更多确认。\n\n4. **Finality（最终性）**：PoS链（如以太坊）有更强的最终性保证，Casper FFG确保区块最终确定后无法回滚。\n\n5. **重组监控**：生产环境应该监控区块重组，一旦发生深度重组（如3个以上区块）应立即告警。\n\n6. **与节点高度对齐**：内部入账、索引与对账应以「可配置确认数 + finalized/safe 标签（若节点暴露）」为准，避免与落后节点 RPC 判重不一致。\n\n**关联实践项目**：公链节点部署与同步验证；JSON-RPC 链上查询与网关服务测试。'
         ),
         BlockChainTestCases(
             module='cex',
@@ -1495,6 +1553,235 @@ with app.app_context():
         else:
             sync_existing_record(existing, p)
     
+    checklist_categories = [
+        ChecklistCategory(
+            name='区块链内部各子模块',
+            code='blockchain_modules',
+            description='涵盖区块链各子模块的基础原理、功能测试、非功能测试，以及子模块内部模块的完整性检查。',
+            icon='fa-link',
+            sort_order=1
+        ),
+        ChecklistCategory(
+            name='测试知识体系',
+            code='testing_knowledge',
+            description='涵盖测试类型、测试流程、自动化框架、测试理论、用例设计等完整测试知识体系。',
+            icon='fa-vial',
+            sort_order=2
+        ),
+        ChecklistCategory(
+            name='QA修炼手册',
+            code='qa_handbook',
+            description='涵盖QA职业发展、技能提升、质量保障、团队协作等方面的修炼指南。',
+            icon='fa-book',
+            sort_order=3
+        )
+    ]
+
+    for c in checklist_categories:
+        existing = ChecklistCategory.query.filter_by(code=c.code).first()
+        if not existing:
+            db.session.add(c)
+        else:
+            sync_existing_record(existing, c)
+
+    db.session.flush()
+
+    blockchain_cat = ChecklistCategory.query.filter_by(code='blockchain_modules').first()
+    testing_cat = ChecklistCategory.query.filter_by(code='testing_knowledge').first()
+    qa_cat = ChecklistCategory.query.filter_by(code='qa_handbook').first()
+
+    blockchain_items = [
+        ChecklistItem(
+            category_id=blockchain_cat.id,
+            title='Web3公链 - 基础原理',
+            code='web3_fundamentals',
+            description='检查Web3公链的核心概念、共识机制、交易生命周期等基础原理是否完整。',
+            keywords='区块链, 公链, 基础原理, 共识机制, PoW, PoS',
+            content='1. 区块链核心概念\n   - 区块结构（区块头、区块体）\n   - 哈希链（默克尔树）\n   - 去中心化与分布式账本\n\n2. 共识机制\n   - PoW（工作量证明）\n   - PoS（权益证明）\n   - DPoS、PBFT等其他共识\n\n3. 交易生命周期\n   - 交易构造与签名\n   - 交易广播与内存池\n   - 区块打包与确认\n   - 最终性保证',
+            sort_order=1
+        ),
+        ChecklistItem(
+            category_id=blockchain_cat.id,
+            title='Web3公链 - 功能测试',
+            code='web3_functional',
+            description='检查Web3公链相关的功能测试用例是否完整。',
+            keywords='功能测试, 智能合约, ERC-20, RPC接口, 交易测试',
+            content='1. 智能合约测试\n   - ERC-20标准代币测试\n   - ERC-721/1155 NFT测试\n   - 合约升级与代理模式\n   - 安全漏洞测试（重入、溢出等）\n\n2. RPC接口测试\n   - eth_call vs eth_sendTransaction\n   - eth_getLogs 事件查询\n   - WebSocket 订阅（newHeads/logs）\n   - 批量JSON-RPC\n\n3. 交易测试\n   - 转账测试（普通、合约调用）\n   - Gas消耗分析\n   - Nonce管理\n   - 签名验证',
+            sort_order=2
+        ),
+        ChecklistItem(
+            category_id=blockchain_cat.id,
+            title='Web3公链 - 非功能测试',
+            code='web3_non_functional',
+            description='检查Web3公链相关的非功能测试（性能、安全、可靠性等）是否完整。',
+            keywords='性能测试, 安全测试, 51%攻击, 节点部署, 同步验证',
+            content='1. 性能测试\n   - 节点同步性能\n   - RPC接口压测\n   - 交易吞吐量（TPS）\n   - Gas优化分析\n\n2. 安全测试\n   - 51%算力攻击模拟\n   - 智能合约安全审计\n   - 私钥管理安全\n   - 重放攻击防护\n\n3. 可靠性测试\n   - 节点部署与同步验证\n   - 故障恢复测试\n   - 版本升级与回滚\n   - 网络分区测试',
+            sort_order=3
+        ),
+        ChecklistItem(
+            category_id=blockchain_cat.id,
+            title='CEX中心化交易所 - 基础原理',
+            code='cex_fundamentals',
+            description='检查CEX中心化交易所的核心业务流程、数据模型等基础原理是否完整。',
+            keywords='CEX, 中心化交易所, 交易生命周期, 撮合引擎, 资金管理',
+            content='1. 核心业务模块\n   - 用户注册与KYC\n   - 资产充提（充值、提现）\n   - 交易撮合（订单簿、撮合引擎）\n   - 资金清算与结算\n\n2. 币币交易生命周期\n   - 订单创建与余额冻结\n   - 订单簿入队\n   - 交易撮合\n   - 成交结算\n   - 订单完成/取消\n\n3. 合约交易生命周期\n   - 开仓准备（杠杆、保证金模式）\n   - 订单创建与保证金冻结\n   - 撮合与开仓\n   - 持仓管理（未实现盈亏、标记价格）\n   - 资金费用结算\n   - 平仓与强制平仓',
+            sort_order=4
+        ),
+        ChecklistItem(
+            category_id=blockchain_cat.id,
+            title='CEX中心化交易所 - 功能测试',
+            code='cex_functional',
+            description='检查CEX中心化交易所的功能测试用例是否完整。',
+            keywords='CEX功能测试, 币币交易, 合约交易, 充提测试, 风控测试',
+            content='1. 币币交易测试\n   - 订单类型（限价、市价、止损）\n   - 撮合算法验证\n   - 成交价格计算\n   - 账户余额更新\n   - 订单簿深度管理\n\n2. 合约交易测试\n   - 开仓/平仓测试\n   - 保证金计算\n   - 未实现盈亏计算\n   - 资金费率结算\n   - 强制平仓触发\n\n3. 充提测试\n   - 充值流程（链上确认、账户入账）\n   - 提现流程（审核、链上广播）\n   - 地址校验\n   - 风控规则\n\n4. 风控系统测试\n   - 交易限额\n   - 异常交易监控\n   - 风险预警机制',
+            sort_order=5
+        ),
+        ChecklistItem(
+            category_id=blockchain_cat.id,
+            title='CEX中心化交易所 - 非功能测试',
+            code='cex_non_functional',
+            description='检查CEX中心化交易所的非功能测试是否完整。',
+            keywords='CEX性能, 撮合引擎性能, 安全测试, 高可用',
+            content='1. 性能测试\n   - 撮合引擎TPS\n   - 订单处理延迟\n   - 数据库性能优化\n   - 并发用户测试\n\n2. 安全测试\n   - 资金安全（冷热钱包）\n   - API接口安全\n   - 用户数据保护\n   - 防DDoS攻击\n\n3. 高可用测试\n   - 故障转移\n   - 数据备份与恢复\n   - 容灾演练\n   - 服务降级策略',
+            sort_order=6
+        ),
+        ChecklistItem(
+            category_id=blockchain_cat.id,
+            title='DEX去中心化交易所',
+            code='dex_modules',
+            description='检查DEX去中心化交易所的测试模块是否完整。',
+            keywords='DEX, 去中心化交易所, AMM, 流动性池, 跨链桥',
+            content='1. 核心功能\n   - 钱包连接协议（WalletConnect等）\n   - 流动性池管理\n   - AMM自动做市商模型\n   - 交易撮合机制\n\n2. 治理功能\n   - 治理代币\n   - 提案与投票\n   - 参数调整\n\n3. 跨链功能\n   - 跨链桥测试\n   - 多链资产映射\n   - 跨链交易确认',
+            sort_order=7
+        )
+    ]
+
+    for item in blockchain_items:
+        existing = ChecklistItem.query.filter_by(category_id=blockchain_cat.id, code=item.code).first()
+        if not existing:
+            db.session.add(item)
+        else:
+            sync_existing_record(existing, item)
+
+    testing_items = [
+        ChecklistItem(
+            category_id=testing_cat.id,
+            title='测试类型',
+            code='test_types',
+            description='检查各类测试类型的知识是否完整。',
+            keywords='测试类型, 功能测试, 性能测试, 安全测试, 兼容性测试',
+            content='1. 功能测试\n   - 单元测试\n   - 集成测试\n   - 系统测试\n   - 验收测试（UAT）\n   - 回归测试\n   - 冒烟测试\n\n2. 非功能测试\n   - 性能测试（负载、压力、并发）\n   - 安全测试（渗透、漏洞扫描）\n   - 兼容性测试（浏览器、设备、系统）\n   - 可用性测试（UI/UX）\n   - 可靠性测试（稳定性、容错）\n\n3. 专项测试\n   - 接口测试（API）\n   - UI自动化测试\n   - 数据库测试\n   - 移动端测试\n   - 国际化测试',
+            sort_order=1
+        ),
+        ChecklistItem(
+            category_id=testing_cat.id,
+            title='测试流程及优化',
+            code='test_process',
+            description='检查测试流程阶段和优化方法是否完整。',
+            keywords='测试流程, 测试计划, 测试设计, 测试执行, 测试报告',
+            content='1. 测试流程阶段\n   - 需求分析与评审\n   - 测试计划制定\n   - 测试用例设计\n   - 测试环境搭建\n   - 测试执行\n   - 缺陷管理\n   - 测试报告\n   - 复盘总结\n\n2. 流程优化\n   - 测试左移\n   - 精准测试\n   - 风险驱动测试\n   - 持续集成/持续测试\n   - 测试效率度量',
+            sort_order=2
+        ),
+        ChecklistItem(
+            category_id=testing_cat.id,
+            title='API自动化测试框架',
+            code='api_automation',
+            description='检查API自动化测试框架的知识是否完整。',
+            keywords='API自动化, Requests, RestAssured, Postman, JMeter',
+            content='1. 主流框架\n   - Python: Requests + Pytest\n   - Java: RestAssured + TestNG\n   - 工具: Postman, JMeter\n\n2. 框架设计\n   - 分层架构（数据层、逻辑层、断言层）\n   - 配置管理\n   - 日志与报告\n   - 持续集成集成\n\n3. 最佳实践\n   - 用例独立性\n   - 数据驱动\n   - 响应断言策略\n   - 环境隔离',
+            sort_order=3
+        ),
+        ChecklistItem(
+            category_id=testing_cat.id,
+            title='测试理论',
+            code='test_theory',
+            description='检查测试基础理论知识是否完整。',
+            keywords='测试理论, 测试原则, 缺陷管理, 风险评估',
+            content='1. 测试基础\n   - 测试定义与目的\n   - 测试原则（7大原则）\n   - 测试与调试的区别\n\n2. 测试层次\n   - 单元测试\n   - 集成测试\n   - 系统测试\n   - 验收测试\n\n3. 缺陷管理\n   - 缺陷生命周期\n   - 缺陷优先级与严重程度\n   - 缺陷报告规范\n\n4. 风险评估\n   - 风险识别\n   - 风险分析\n   - 风险应对策略',
+            sort_order=4
+        ),
+        ChecklistItem(
+            category_id=testing_cat.id,
+            title='测试用例设计思想',
+            code='case_design',
+            description='检查测试用例设计技术是否完整。',
+            keywords='用例设计, 等价类, 边界值, 判定表, 状态转换',
+            content='1. 黑盒测试技术\n   - 等价类划分\n   - 边界值分析\n   - 判定表法\n   - 因果图法\n   - 正交试验法\n   - 场景法\n   - 错误推测法\n\n2. 白盒测试技术\n   - 语句覆盖\n   - 判定覆盖\n   - 条件覆盖\n   - 路径覆盖\n\n3. 测试用例规范\n   - 用例结构\n   - 优先级划分\n   - 可维护性',
+            sort_order=5
+        ),
+        ChecklistItem(
+            category_id=testing_cat.id,
+            title='QA与QC分析',
+            code='qa_qc',
+            description='检查QA与QC的区别和知识体系是否完整。',
+            keywords='QA, QC, 质量保证, 质量控制, 度量指标',
+            content='1. QA质量保证\n   - 定义与目标\n   - 流程建立与改进\n   - 培训与指导\n   - 审计与评审\n\n2. QC质量控制\n   - 定义与目标\n   - 测试执行\n   - 缺陷发现与跟踪\n   - 产品验证\n\n3. 关键区别\n   - 预防性 vs 检测性\n   - 过程导向 vs 产品导向\n   - 全员参与 vs 特定团队\n\n4. 度量指标\n   - 测试覆盖率\n   - 缺陷密度\n   - 测试效率\n   - 逃逸缺陷率',
+            sort_order=6
+        )
+    ]
+
+    for item in testing_items:
+        existing = ChecklistItem.query.filter_by(category_id=testing_cat.id, code=item.code).first()
+        if not existing:
+            db.session.add(item)
+        else:
+            sync_existing_record(existing, item)
+
+    qa_items = [
+        ChecklistItem(
+            category_id=qa_cat.id,
+            title='QA职业发展路径',
+            code='career_path',
+            description='QA职业发展的不同阶段和方向。',
+            keywords='职业发展, 技术路线, 管理路线, 专家路线',
+            content='1. 初级QA\n   - 功能测试执行\n   - 用例编写\n   - 缺陷报告\n   - 工具使用\n\n2. 中级QA\n   - 测试设计能力\n   - 自动化测试\n   - 接口测试\n   - 性能测试基础\n\n3. 高级QA/技术专家\n   - 测试架构设计\n   - 性能调优\n   - 安全测试\n   - 测试框架开发\n\n4. 管理路线\n   - 测试主管\n   - 测试经理\n   - QA总监\n   - 质量负责人',
+            sort_order=1
+        ),
+        ChecklistItem(
+            category_id=qa_cat.id,
+            title='核心技能提升',
+            code='skills',
+            description='QA必备的核心技术和软技能。',
+            keywords='技能提升, 编程能力, 数据库, Linux, 沟通协作',
+            content='1. 技术技能\n   - 编程语言（Python/Java/JavaScript）\n   - 数据库（SQL、事务、索引）\n   - Linux系统操作\n   - 网络协议（HTTP/HTTPS、TCP/IP）\n   - 版本控制（Git）\n\n2. 测试技能\n   - 测试方法论\n   - 自动化框架\n   - 性能测试工具\n   - 安全测试基础\n\n3. 软技能\n   - 沟通协作\n   - 问题分析\n   - 文档写作\n   - 时间管理\n   - 持续学习',
+            sort_order=2
+        ),
+        ChecklistItem(
+            category_id=qa_cat.id,
+            title='质量保障体系建设',
+            code='quality_system',
+            description='如何建立和完善团队的质量保障体系。',
+            keywords='质量体系, 流程建设, 度量体系, 文化建设',
+            content='1. 流程体系\n   - 需求评审流程\n   - 测试流程规范\n   - 发布流程\n   - 缺陷管理流程\n\n2. 度量体系\n   - 质量指标定义\n   - 数据采集\n   - 报表分析\n   - 趋势追踪\n\n3. 工具体系\n   - 用例管理\n   - 缺陷管理\n   - CI/CD集成\n   - 监控告警\n\n4. 文化建设\n   - 质量意识培养\n   - 跨团队协作\n   - 持续改进机制',
+            sort_order=3
+        ),
+        ChecklistItem(
+            category_id=qa_cat.id,
+            title='团队协作与沟通',
+            code='teamwork',
+            description='QA如何与产品、开发、运维等角色高效协作。',
+            keywords='团队协作, 跨部门沟通, 敏捷开发, 缺陷管理',
+            content='1. 与产品经理协作\n   - 需求评审\n   - 验收标准对齐\n   - 变更管理\n\n2. 与开发协作\n   - 缺陷沟通\n   - 测试左移\n   - 代码评审参与\n   - 自动化共建\n\n3. 敏捷开发中的QA\n   - Sprint规划参与\n   - 每日站会\n   - 迭代回顾\n   - 持续测试\n\n4. 高效沟通技巧\n   - 问题描述清晰\n   - 数据支撑观点\n   - 建设性反馈\n   - 冲突处理',
+            sort_order=4
+        ),
+        ChecklistItem(
+            category_id=qa_cat.id,
+            title='认证与学习资源',
+            code='certifications',
+            description='QA相关的认证考试和持续学习资源。',
+            keywords='认证, ISTQB, 学习资源, 技术社区',
+            content='1. 专业认证\n   - ISTQB（基础级/高级/专家级）\n   - CSTE（软件测试认证）\n   - CSQA（质量分析师认证）\n   - AWS/GCP云服务认证\n\n2. 学习平台\n   - 官方文档\n   - 技术博客\n   - 在线课程\n   - 开源项目贡献\n\n3. 技术社区\n   - 技术大会\n   - 本地Meetup\n   - 技术公众号\n   - GitHub开源社区',
+            sort_order=5
+        )
+    ]
+
+    for item in qa_items:
+        existing = ChecklistItem.query.filter_by(category_id=qa_cat.id, code=item.code).first()
+        if not existing:
+            db.session.add(item)
+        else:
+            sync_existing_record(existing, item)
+    
     db.session.commit()
     print('数据库初始化完成！')
     print('默认管理员账号: admin')
@@ -1504,6 +1791,8 @@ with app.app_context():
         f'BlockChainTestCases={BlockChainTestCases.query.count()}, '
         f'TransactionLifecycleStage={TransactionLifecycleStage.query.count()}, '
         f'TestType={TestType.query.count()}, '
-        f'TestModule={TestModule.query.count()}',
+        f'TestModule={TestModule.query.count()}, '
+        f'ChecklistCategory={ChecklistCategory.query.count()}, '
+        f'ChecklistItem={ChecklistItem.query.count()}',
         flush=True,
     )

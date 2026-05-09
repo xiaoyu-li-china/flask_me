@@ -282,3 +282,48 @@ class TestUpload(db.Model):
     
     def __repr__(self):
         return f'<TestUpload {self.file_name}>'
+
+
+class ChecklistCategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    code = db.Column(db.String(50), unique=True, nullable=False)
+    description = db.Column(db.Text)
+    icon = db.Column(db.String(50))
+    sort_order = db.Column(db.Integer, default=0)
+    
+    items = db.relationship('ChecklistItem', backref='category', lazy=True, order_by='ChecklistItem.sort_order')
+    
+    def __repr__(self):
+        return f'<ChecklistCategory {self.name}>'
+
+
+class ChecklistItem(db.Model):
+    STATUS_NOT_STARTED = 'not_started'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_COMPLETED = 'completed'
+    STATUS_INCOMPLETE = 'incomplete'
+    
+    STATUS_CHOICES = [
+        (STATUS_NOT_STARTED, '未开始'),
+        (STATUS_IN_PROGRESS, '进行中'),
+        (STATUS_COMPLETED, '已完成'),
+        (STATUS_INCOMPLETE, '未完整'),
+    ]
+    
+    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('checklist_category.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    content = db.Column(db.Text)
+    sort_order = db.Column(db.Integer, default=0)
+    status = db.Column(db.String(20), default=STATUS_NOT_STARTED)
+    
+    def get_status_display(self):
+        for value, display in self.STATUS_CHOICES:
+            if value == self.status:
+                return display
+        return self.status
+    
+    def __repr__(self):
+        return f'<ChecklistItem {self.title}>'

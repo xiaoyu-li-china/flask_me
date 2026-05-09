@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-primary mb-0">
+                    <i class="fas fa-clipboard-check me-2"></i>项目内容完整性 Checklist
+                </h3>
+                <a href="{{ url_for('main.checklist_create') }}" class="btn btn-sm btn-success">
+                    <i class="fas fa-plus me-1"></i>添加
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body p-0">
+                    <table class="table table-hover table-sm mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;" class="text-center">状态</th>
+                                <th style="width: 80px;">排序</th>
+                                <th>内容</th>
+                                <th style="width: 400px;">详细描述</th>
+                                <th style="width: 140px;" class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                            <tr class="table-secondary">
+                                <td colspan="5" class="fw-bold">
+                                    <i class="fas {{ category.icon or 'fa-list' }} me-2"></i>{{ category.name }}
+                                    <span class="badge bg-secondary ms-2">{{ category.items|length }}</span>
+                                </td>
+                            </tr>
+                            {% for item in category.items %}
+                            <tr>
+                                <td class="text-center align-middle">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary status-btn" 
+                                                data-item-id="{{ item.id }}" 
+                                                data-status="not_started"
+                                                title="未开始">
+                                            <i class="far fa-circle"></i>
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-outline-warning status-btn" 
+                                                data-item-id="{{ item.id }}" 
+                                                data-status="in_progress"
+                                                title="进行中">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-outline-success status-btn" 
+                                                data-item-id="{{ item.id }}" 
+                                                data-status="completed"
+                                                title="已完成">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-outline-danger status-btn" 
+                                                data-item-id="{{ item.id }}" 
+                                                data-status="incomplete"
+                                                title="未完整">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary move-btn" 
+                                                data-item-id="{{ item.id }}" 
+                                                data-direction="up"
+                                                title="上移">
+                                            <i class="fas fa-chevron-up"></i>
+                                        </button>
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary move-btn" 
+                                                data-item-id="{{ item.id }}" 
+                                                data-direction="down"
+                                                title="下移">
+                                            <i class="fas fa-chevron-down"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="d-flex align-items-center">
+                                        {% if item.status == 'completed' %}
+                                        <span class="badge bg-success me-2">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        {% elif item.status == 'in_progress' %}
+                                        <span class="badge bg-warning text-dark me-2">
+                                            <i class="fas fa-minus"></i>
+                                        </span>
+                                        {% elif item.status == 'incomplete' %}
+                                        <span class="badge bg-danger me-2">
+                                            <i class="fas fa-times"></i>
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-secondary me-2">
+                                            <i class="far fa-circle"></i>
+                                        </span>
+                                        {% endif %}
+                                        <span class="{% if item.status == 'completed' %}text-success{% elif item.status == 'incomplete' %}text-danger{% elif item.status == 'in_progress' %}text-warning{% endif %}">
+                                            {{ item.title }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="align-middle">
+                                    <small class="text-muted">{{ item.description or '-' }}</small>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="{{ url_for('main.checklist_edit', item_id=item.id) }}" 
+                                           class="btn btn-outline-primary" 
+                                           title="修改">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-outline-danger delete-btn" 
+                                                data-item-id="{{ item.id }}" 
+                                                data-item-title="{{ item.title }}"
+                                                title="删除">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-between align-items-center text-muted small">
+                <div>
+                    <span class="me-4"><span class="badge bg-secondary"><i class="far fa-circle"></i></span> 未开始</span>
+                    <span class="me-4"><span class="badge bg-warning text-dark"><i class="fas fa-minus"></i></span> 进行中</span>
+                    <span class="me-4"><span class="badge bg-success"><i class="fas fa-check"></i></span> 已完成</span>
+                    <span><span class="badge bg-danger"><i class="fas fa-times"></i></span> 未完整</span>
+                </div>
+                <div>
+                    共 {{ stats.items }} 条记录
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white py-2">
+                <h6 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-1"></i>确认删除
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="mb-0 small">确定要删除 <strong id="deleteItemTitle"></strong> 吗？</p>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">取消</button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    var deleteItemTitle = document.getElementById('deleteItemTitle');
+    var deleteForm = document.getElementById('deleteForm');
+    
+    document.querySelectorAll('.delete-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var itemId = this.getAttribute('data-item-id');
+            var itemTitle = this.getAttribute('data-item-title');
+            deleteItemTitle.textContent = itemTitle;
+            deleteForm.action = '/checklist/' + itemId + '/delete';
+            deleteModal.show();
+        });
+    });
+
+    document.querySelectorAll('.status-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var itemId = this.getAttribute('data-item-id');
+            var status = this.getAttribute('data-status');
+            
+            fetch('/checklist/' + itemId + '/status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'status=' + status
+            }).then(function(response) {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        });
+    });
+
+    document.querySelectorAll('.move-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var itemId = this.getAttribute('data-item-id');
+            var direction = this.getAttribute('data-direction');
+            
+            fetch('/checklist/' + itemId + '/move', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'direction=' + direction
+            }).then(function(response) {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

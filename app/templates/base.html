@@ -70,6 +70,12 @@
                     </li>
                     {% if current_user.is_admin %}
                     <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ['main.checklist_home', 'main.checklist_detail'] %}active{% endif %}"
+                           href="{{ url_for('main.checklist_home') }}">
+                            <i class="fas fa-clipboard-check me-1"></i>Checklist
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if request.endpoint in ['main.test_case_upload_module', 'main.upload_test_case', 'main.uploaded_test_cases_list', 'main.uploaded_test_case_detail', 'main.uploaded_test_case_indexed'] %}active{% endif %}"
                            href="{{ url_for('main.test_case_upload_module') }}">
                             <i class="fas fa-cloud-upload-alt me-1"></i>上传测试用例

@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from flask import render_template, url_for, redirect, flash, request, current_app
+from flask import render_template, url_for, redirect, flash, request, current_app, jsonify
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from app.main import main
@@ -13,7 +13,8 @@ from app.models import (
     PerformanceTestCase, TestType, TestProcess,
     APIAutomationFramework, TestTheory,
     TestCaseDesign, QAQCAnalysis,
-    ContractType, TestUpload
+    ContractType, TestUpload,
+    ChecklistCategory, ChecklistItem
 )
 from app.utils.file_parser import parse_file
 
@@ -71,8 +72,17 @@ def blockchain_tests():
 @main.route('/blockchain-tests/functional')
 @login_required
 def blockchain_functional_tests():
-    module = request.args.get('module', '')
-    category = request.args.get('category', '')
+    module = (request.args.get('module') or '').strip()
+    category = (request.args.get('category') or '').strip()
+
+    # 普通用户（非管理员）功能测试仅开放 CEX 模块
+    functional_cex_only = not getattr(current_user, 'is_admin', False)
+    if functional_cex_only:
+        if not module:
+            return redirect(url_for('main.blockchain_functional_tests', module='cex'))
+        if module != 'cex':
+            flash('当前账号仅能访问 CEX 中心化交易所功能测试。', 'warning')
+            return redirect(url_for('main.blockchain_functional_tests', module='cex'))
     
     query = BlockChainTestCases.query.filter(BlockChainTestCases.module != 'performance')
     
@@ -81,24 +91,54 @@ def blockchain_functional_tests():
     if category:
         query = query.filter_by(category=category)
     
-    if not module:
-        query = query.filter(
-            BlockChainTestCases.priority.in_(['P0', 'P1', 'P2', 'P3'])
-        )
-    
     test_cases = query.order_by(
         BlockChainTestCases.module,
         BlockChainTestCases.category,
         BlockChainTestCases.priority,
         BlockChainTestCases.created_at.desc()
     ).all()
-    
+
+    # CEX 仅展示已上传 Excel；库内 BlockChainTestCases 卡片不再展示。
+    if module == 'cex':
+        test_cases = []
+
     modules = TestModule.query.filter(TestModule.name != 'performance').order_by(TestModule.sort_order).all()
+    if functional_cex_only:
+        modules = [m for m in modules if m.name == 'cex']
     
-    categories = db.session.query(
+    block_chain_categories_q = db.session.query(
         BlockChainTestCases.module,
         BlockChainTestCases.category
-    ).filter(BlockChainTestCases.module != 'performance').distinct().all()
+    ).filter(BlockChainTestCases.module != 'performance')
+    if functional_cex_only:
+        block_chain_categories_q = block_chain_categories_q.filter_by(module='cex')
+    block_chain_categories = block_chain_categories_q.distinct().all()
+    
+    upload_categories_q = db.session.query(
+        TestUpload.module,
+        TestUpload.category
+    ).filter(
+        TestUpload.status == 'success',
+        TestUpload.module != 'performance',
+        TestUpload.module != None,
+        TestUpload.category != None,
+        TestUpload.category != ''
+    )
+    if functional_cex_only:
+        upload_categories_q = upload_categories_q.filter_by(module='cex')
+    upload_categories = upload_categories_q.distinct().all()
+    
+    categories_set = set()
+    for cat in block_chain_categories:
+        if cat[1]:
+            categories_set.add(cat)
+    for cat in upload_categories:
+        if cat[1]:
+            categories_set.add(cat)
+    
+    categories = list(categories_set)
+    if functional_cex_only:
+        categories = [(m, c) for m, c in categories if m == 'cex']
     
     indexed_uploads_query = TestUpload.query.filter_by(status='success')
     if module and module != 'performance':
@@ -107,7 +147,7 @@ def blockchain_functional_tests():
         indexed_uploads_query = indexed_uploads_query.filter_by(category=category)
     indexed_uploads = indexed_uploads_query.order_by(TestUpload.upload_time.desc()).all()
 
-    # 仅当“模块 + 分类”且存在成功上传记录时，才进入上传Excel预览样式。
+    # 上传 Excel 预览：非 CEX 需存在成功上传记录；CEX 在选定分类后始终走 Excel 区（无上传则空表提示）。
     show_uploaded_excel_only = False
     preview_upload = None
     preview_table_columns = [
@@ -123,13 +163,15 @@ def blockchain_functional_tests():
             category=category
         ).order_by(TestUpload.upload_time.desc()).first()
 
-        show_uploaded_excel_only = bool(preview_upload)
+        # CEX：只要选了分类就进入 Excel 视图（无上传则提示上传），永不回退到库内卡片。
+        show_uploaded_excel_only = True if module == 'cex' else bool(preview_upload)
 
-        if show_uploaded_excel_only and preview_upload.parsed_data:
+        if preview_upload and preview_upload.parsed_data:
             try:
                 parsed_data = json.loads(preview_upload.parsed_data)
                 for case in parsed_data.get('test_cases', []):
                     raw_data = case.get('raw_data', {}) or {}
+                    priority = case.get('priority', '') or raw_data.get('Priority', '') or raw_data.get('优先级', '')
                     preview_table_rows.append({
                         'TestCaseId': case.get('test_case_id', '') or raw_data.get('TestCaseId', '') or raw_data.get('用例ID', ''),
                         'Module': preview_upload.module or case.get('module', '') or raw_data.get('Module', '') or raw_data.get('模块', ''),
@@ -138,12 +180,13 @@ def blockchain_functional_tests():
                         'Preconditions': case.get('preconditions', '') or raw_data.get('Preconditions', '') or raw_data.get('前置条件', ''),
                         'TestSteps': case.get('test_steps', '') or raw_data.get('TestSteps', '') or raw_data.get('测试步骤', ''),
                         'ExpectedResult': case.get('expected_result', '') or raw_data.get('ExpectedResult', '') or raw_data.get('预期结果', ''),
-                        'Priority': case.get('priority', '') or raw_data.get('Priority', '') or raw_data.get('优先级', '')
+                        'Priority': priority
                     })
 
                 if not preview_table_rows:
                     for sheet in parsed_data.get('sheets', []):
                         for row in sheet.get('rows', []):
+                            priority = row.get('Priority', '') or row.get('优先级', '')
                             preview_table_rows.append({
                                 'TestCaseId': row.get('TestCaseId', '') or row.get('用例ID', '') or row.get('用例编号', ''),
                                 'Module': preview_upload.module or row.get('Module', '') or row.get('模块', ''),
@@ -152,7 +195,7 @@ def blockchain_functional_tests():
                                 'Preconditions': row.get('Preconditions', '') or row.get('前置条件', '') or row.get('前提条件', ''),
                                 'TestSteps': row.get('TestSteps', '') or row.get('Test Steps', '') or row.get('测试步骤', '') or row.get('步骤', ''),
                                 'ExpectedResult': row.get('ExpectedResult', '') or row.get('Expected Result', '') or row.get('预期结果', ''),
-                                'Priority': row.get('Priority', '') or row.get('优先级', '')
+                                'Priority': priority
                             })
             except Exception:
                 preview_table_rows = []
@@ -174,6 +217,9 @@ def blockchain_functional_tests():
 @login_required
 def blockchain_test_detail(test_id):
     test_case = BlockChainTestCases.query.get_or_404(test_id)
+    if not getattr(current_user, 'is_admin', False) and test_case.module != 'cex':
+        flash('当前账号无权查看该测试案例。', 'danger')
+        return redirect(url_for('main.blockchain_functional_tests', module='cex'))
     return render_template('blockchain_test_detail.html',
                            title=test_case.title,
                            test_case=test_case)
@@ -736,6 +782,7 @@ def uploaded_test_case_indexed(upload_id):
     table_rows = []
     for case in parsed_data.get('test_cases', []):
         raw_data = case.get('raw_data', {}) or {}
+        priority = case.get('priority', '') or raw_data.get('Priority', '') or raw_data.get('优先级', '')
         table_rows.append({
             'TestCaseId': case.get('test_case_id', '') or raw_data.get('TestCaseId', '') or raw_data.get('用例ID', ''),
             'Module': test_upload.module or case.get('module', '') or raw_data.get('Module', '') or raw_data.get('模块', ''),
@@ -744,13 +791,14 @@ def uploaded_test_case_indexed(upload_id):
             'Preconditions': case.get('preconditions', '') or raw_data.get('Preconditions', '') or raw_data.get('前置条件', ''),
             'TestSteps': case.get('test_steps', '') or raw_data.get('TestSteps', '') or raw_data.get('测试步骤', ''),
             'ExpectedResult': case.get('expected_result', '') or raw_data.get('ExpectedResult', '') or raw_data.get('预期结果', ''),
-            'Priority': case.get('priority', '') or raw_data.get('Priority', '') or raw_data.get('优先级', '')
+            'Priority': priority
         })
 
     # Fallback: if structured cases are empty, render directly from original Excel rows.
     if not table_rows:
         for sheet in parsed_data.get('sheets', []):
             for row in sheet.get('rows', []):
+                priority = row.get('Priority', '') or row.get('优先级', '')
                 table_rows.append({
                     'TestCaseId': row.get('TestCaseId', '') or row.get('用例ID', '') or row.get('用例编号', ''),
                     'Module': test_upload.module or row.get('Module', '') or row.get('模块', ''),
@@ -759,7 +807,7 @@ def uploaded_test_case_indexed(upload_id):
                     'Preconditions': row.get('Preconditions', '') or row.get('前置条件', '') or row.get('前提条件', ''),
                     'TestSteps': row.get('TestSteps', '') or row.get('Test Steps', '') or row.get('测试步骤', '') or row.get('步骤', ''),
                     'ExpectedResult': row.get('ExpectedResult', '') or row.get('Expected Result', '') or row.get('预期结果', ''),
-                    'Priority': row.get('Priority', '') or row.get('优先级', '')
+                    'Priority': priority
                 })
 
     return render_template('uploaded_test_case_indexed.html',
@@ -767,3 +815,199 @@ def uploaded_test_case_indexed(upload_id):
                            test_upload=test_upload,
                            table_columns=table_columns,
                            table_rows=table_rows)
+
+
+@main.route('/checklist')
+@login_required
+def checklist_home():
+    if not current_user.is_admin:
+        flash('当前账号无权访问 Checklist 模块。', 'warning')
+        return redirect(url_for('main.permission_center'))
+    
+    categories = ChecklistCategory.query.order_by(ChecklistCategory.sort_order).all()
+    
+    stats = {
+        'categories': ChecklistCategory.query.count(),
+        'items': ChecklistItem.query.count()
+    }
+    
+    return render_template('checklist_home.html',
+                           title='项目内容完整性 Checklist',
+                           categories=categories,
+                           stats=stats)
+
+
+@main.route('/checklist/<int:item_id>')
+@login_required
+def checklist_detail(item_id):
+    if not current_user.is_admin:
+        flash('当前账号无权访问 Checklist 模块。', 'warning')
+        return redirect(url_for('main.permission_center'))
+    
+    item = ChecklistItem.query.get_or_404(item_id)
+    
+    return render_template('checklist_detail.html',
+                           title=item.title,
+                           item=item)
+
+
+@main.route('/checklist/create', methods=['GET', 'POST'])
+@login_required
+def checklist_create():
+    if not current_user.is_admin:
+        flash('当前账号无权访问 Checklist 模块。', 'warning')
+        return redirect(url_for('main.permission_center'))
+    
+    categories = ChecklistCategory.query.order_by(ChecklistCategory.sort_order).all()
+    
+    if request.method == 'POST':
+        category_id = request.form.get('category_id')
+        title = (request.form.get('title') or '').strip()
+        description = (request.form.get('description') or '').strip()
+        content = (request.form.get('content') or '').strip()
+        
+        if not category_id:
+            flash('请选择分类', 'danger')
+            return redirect(url_for('main.checklist_create'))
+        if not title:
+            flash('请输入内容', 'danger')
+            return redirect(url_for('main.checklist_create'))
+        
+        max_order = db.session.query(db.func.max(ChecklistItem.sort_order)).filter_by(
+            category_id=int(category_id)
+        ).scalar() or 0
+        
+        item = ChecklistItem(
+            category_id=int(category_id),
+            title=title,
+            description=description,
+            content=content,
+            sort_order=max_order + 1,
+            status=ChecklistItem.STATUS_NOT_STARTED
+        )
+        db.session.add(item)
+        db.session.commit()
+        
+        flash('Checklist 条目创建成功', 'success')
+        return redirect(url_for('main.checklist_home'))
+    
+    return render_template('checklist_form.html',
+                           title='添加检查点',
+                           categories=categories,
+                           item=None)
+
+
+@main.route('/checklist/<int:item_id>/edit', methods=['GET', 'POST'])
+@login_required
+def checklist_edit(item_id):
+    if not current_user.is_admin:
+        flash('当前账号无权访问 Checklist 模块。', 'warning')
+        return redirect(url_for('main.permission_center'))
+    
+    item = ChecklistItem.query.get_or_404(item_id)
+    categories = ChecklistCategory.query.order_by(ChecklistCategory.sort_order).all()
+    
+    if request.method == 'POST':
+        category_id = request.form.get('category_id')
+        title = (request.form.get('title') or '').strip()
+        description = (request.form.get('description') or '').strip()
+        content = (request.form.get('content') or '').strip()
+        
+        if not category_id:
+            flash('请选择分类', 'danger')
+            return redirect(url_for('main.checklist_edit', item_id=item.id))
+        if not title:
+            flash('请输入内容', 'danger')
+            return redirect(url_for('main.checklist_edit', item_id=item.id))
+        
+        item.category_id = int(category_id)
+        item.title = title
+        item.description = description
+        item.content = content
+        db.session.commit()
+        
+        flash('Checklist 条目更新成功', 'success')
+        return redirect(url_for('main.checklist_home'))
+    
+    return render_template('checklist_form.html',
+                           title='修改检查点',
+                           categories=categories,
+                           item=item)
+
+
+@main.route('/checklist/<int:item_id>/delete', methods=['POST'])
+@login_required
+def checklist_delete(item_id):
+    if not current_user.is_admin:
+        flash('当前账号无权访问 Checklist 模块。', 'warning')
+        return redirect(url_for('main.permission_center'))
+    
+    item = ChecklistItem.query.get_or_404(item_id)
+    db.session.delete(item)
+    db.session.commit()
+    
+    flash('Checklist 条目删除成功', 'success')
+    return redirect(url_for('main.checklist_home'))
+
+
+@main.route('/checklist/<int:item_id>/status', methods=['POST'])
+@login_required
+def checklist_toggle_status(item_id):
+    if not current_user.is_admin:
+        return jsonify({'error': '无权访问'}), 403
+    
+    item = ChecklistItem.query.get_or_404(item_id)
+    status = request.form.get('status')
+    
+    valid_statuses = [
+        ChecklistItem.STATUS_NOT_STARTED,
+        ChecklistItem.STATUS_IN_PROGRESS,
+        ChecklistItem.STATUS_COMPLETED,
+        ChecklistItem.STATUS_INCOMPLETE
+    ]
+    
+    if status in valid_statuses:
+        item.status = status
+        db.session.commit()
+        return jsonify({'success': True, 'status': status})
+    
+    return jsonify({'error': '无效状态'}), 400
+
+
+@main.route('/checklist/<int:item_id>/move', methods=['POST'])
+@login_required
+def checklist_move(item_id):
+    if not current_user.is_admin:
+        return jsonify({'error': '无权访问'}), 403
+    
+    item = ChecklistItem.query.get_or_404(item_id)
+    direction = request.form.get('direction')
+    
+    items_in_category = ChecklistItem.query.filter_by(
+        category_id=item.category_id
+    ).order_by(ChecklistItem.sort_order).all()
+    
+    current_index = None
+    for i, it in enumerate(items_in_category):
+        if it.id == item.id:
+            current_index = i
+            break
+    
+    if current_index is None:
+        return jsonify({'error': '条目不存在'}), 404
+    
+    target_index = None
+    if direction == 'up' and current_index > 0:
+        target_index = current_index - 1
+    elif direction == 'down' and current_index < len(items_in_category) - 1:
+        target_index = current_index + 1
+    
+    if target_index is not None:
+        other_item = items_in_category[target_index]
+        temp_order = item.sort_order
+        item.sort_order = other_item.sort_order
+        other_item.sort_order = temp_order
+        db.session.commit()
+        return jsonify({'success': True})
+    
+    return jsonify({'success': False, 'message': '已在边界'})

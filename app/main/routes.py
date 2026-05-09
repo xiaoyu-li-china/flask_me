@@ -1011,3 +1011,26 @@ def checklist_move(item_id):
         return jsonify({'success': True})
     
     return jsonify({'success': False, 'message': '已在边界'})
+
+
+@main.route('/checklist/reorder', methods=['POST'])
+@login_required
+def checklist_reorder():
+    if not current_user.is_admin:
+        return jsonify({'error': '无权访问'}), 403
+    
+    data = request.get_json()
+    category_id = data.get('category_id')
+    item_ids = data.get('item_ids', [])
+    
+    if not category_id or not item_ids:
+        return jsonify({'error': '参数无效'}), 400
+    
+    for index, item_id in enumerate(item_ids):
+        item = ChecklistItem.query.filter_by(id=item_id, category_id=category_id).first()
+        if item:
+            item.sort_order = index + 1
+    
+    db.session.commit()
+    
+    return jsonify({'success': True})

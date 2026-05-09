@@ -18,109 +18,80 @@
                     <table class="table table-hover table-sm mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width: 50px;" class="text-center">状态</th>
-                                <th style="width: 80px;">排序</th>
+                                <th style="width: 120px;" class="text-center">状态</th>
                                 <th>内容</th>
                                 <th style="width: 400px;">详细描述</th>
-                                <th style="width: 140px;" class="text-center">操作</th>
+                                <th style="width: 180px;" class="text-center">操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for category in categories %}
                             <tr class="table-secondary">
-                                <td colspan="5" class="fw-bold">
+                                <td colspan="4" class="fw-bold">
                                     <i class="fas {{ category.icon or 'fa-list' }} me-2"></i>{{ category.name }}
                                     <span class="badge bg-secondary ms-2">{{ category.items|length }}</span>
                                 </td>
                             </tr>
+                            <tbody class="sortable-tbody" data-category-id="{{ category.id }}">
                             {% for item in category.items %}
-                            <tr>
+                            <tr data-item-id="{{ item.id }}">
                                 <td class="text-center align-middle">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" 
-                                                class="btn btn-outline-secondary status-btn" 
-                                                data-item-id="{{ item.id }}" 
-                                                data-status="not_started"
-                                                title="未开始">
-                                            <i class="far fa-circle"></i>
-                                        </button>
-                                        <button type="button" 
-                                                class="btn btn-outline-warning status-btn" 
-                                                data-item-id="{{ item.id }}" 
-                                                data-status="in_progress"
-                                                title="进行中">
-                                            <i class="fas fa-minus"></i>
-                                        </button>
-                                        <button type="button" 
-                                                class="btn btn-outline-success status-btn" 
-                                                data-item-id="{{ item.id }}" 
-                                                data-status="completed"
-                                                title="已完成">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        <button type="button" 
-                                                class="btn btn-outline-danger status-btn" 
-                                                data-item-id="{{ item.id }}" 
-                                                data-status="incomplete"
-                                                title="未完整">
-                                            <i class="fas fa-times"></i>
-                                        </button>
+                                    <div class="position-relative">
+                                        <div class="status-display cursor-pointer" data-item-id="{{ item.id }}">
+                                            {% if item.status == 'completed' %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                            {% elif item.status == 'in_progress' %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-minus"></i>
+                                            </span>
+                                            {% elif item.status == 'incomplete' %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times"></i>
+                                            </span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">
+                                                <i class="far fa-circle"></i>
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <select class="form-select form-select-sm status-select d-none" data-item-id="{{ item.id }}">
+                                            <option value="not_started" {% if item.status == 'not_started' %}selected{% endif %}>
+                                                <span class="badge bg-secondary me-2"><i class="far fa-circle"></i></span>未开始
+                                            </option>
+                                            <option value="in_progress" {% if item.status == 'in_progress' %}selected{% endif %}>
+                                                <span class="badge bg-warning text-dark me-2"><i class="fas fa-minus"></i></span>进行中
+                                            </option>
+                                            <option value="completed" {% if item.status == 'completed' %}selected{% endif %}>
+                                                <span class="badge bg-success me-2"><i class="fas fa-check"></i></span>已完成
+                                            </option>
+                                            <option value="incomplete" {% if item.status == 'incomplete' %}selected{% endif %}>
+                                                <span class="badge bg-danger me-2"><i class="fas fa-times"></i></span>未完整
+                                            </option>
+                                        </select>
                                     </div>
                                 </td>
                                 <td class="align-middle">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button type="button" 
-                                                class="btn btn-outline-secondary move-btn" 
-                                                data-item-id="{{ item.id }}" 
-                                                data-direction="up"
-                                                title="上移">
-                                            <i class="fas fa-chevron-up"></i>
-                                        </button>
-                                        <button type="button" 
-                                                class="btn btn-outline-secondary move-btn" 
-                                                data-item-id="{{ item.id }}" 
-                                                data-direction="down"
-                                                title="下移">
-                                            <i class="fas fa-chevron-down"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                                <td class="align-middle">
-                                    <div class="d-flex align-items-center">
-                                        {% if item.status == 'completed' %}
-                                        <span class="badge bg-success me-2">
-                                            <i class="fas fa-check"></i>
-                                        </span>
-                                        {% elif item.status == 'in_progress' %}
-                                        <span class="badge bg-warning text-dark me-2">
-                                            <i class="fas fa-minus"></i>
-                                        </span>
-                                        {% elif item.status == 'incomplete' %}
-                                        <span class="badge bg-danger me-2">
-                                            <i class="fas fa-times"></i>
-                                        </span>
-                                        {% else %}
-                                        <span class="badge bg-secondary me-2">
-                                            <i class="far fa-circle"></i>
-                                        </span>
-                                        {% endif %}
-                                        <span class="{% if item.status == 'completed' %}text-success{% elif item.status == 'incomplete' %}text-danger{% elif item.status == 'in_progress' %}text-warning{% endif %}">
-                                            {{ item.title }}
-                                        </span>
-                                    </div>
+                                    <span class="{% if item.status == 'completed' %}text-success{% elif item.status == 'incomplete' %}text-danger{% elif item.status == 'in_progress' %}text-warning{% endif %}">
+                                        {{ item.title }}
+                                    </span>
                                 </td>
                                 <td class="align-middle">
                                     <small class="text-muted">{{ item.description or '-' }}</small>
                                 </td>
                                 <td class="text-center align-middle">
                                     <div class="btn-group btn-group-sm" role="group">
+                                        <span class="me-2 cursor-move text-muted drag-handle" title="拖动排序">
+                                            <i class="fas fa-grip-vertical"></i>
+                                        </span>
                                         <a href="{{ url_for('main.checklist_edit', item_id=item.id) }}" 
-                                           class="btn btn-outline-primary" 
+                                           class="btn btn-link text-decoration-none opacity-75" 
                                            title="修改">
                                             <i class="fas fa-pencil-alt"></i>
                                         </a>
                                         <button type="button" 
-                                                class="btn btn-outline-danger delete-btn" 
+                                                class="btn btn-link text-decoration-none opacity-75 delete-btn" 
                                                 data-item-id="{{ item.id }}" 
                                                 data-item-title="{{ item.title }}"
                                                 title="删除">
@@ -130,6 +101,7 @@
                                 </td>
                             </tr>
                             {% endfor %}
+                            </tbody>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -173,6 +145,27 @@
     </div>
 </div>
 
+<style>
+.status-display {
+    display: inline-block;
+    cursor: pointer;
+    min-width: 32px;
+    text-align: center;
+}
+
+.status-select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
@@ -189,10 +182,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.querySelectorAll('.status-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
+    document.querySelectorAll('.status-display').forEach(function(display) {
+        display.addEventListener('click', function() {
             var itemId = this.getAttribute('data-item-id');
-            var status = this.getAttribute('data-status');
+            var select = this.nextElementSibling;
+            this.classList.add('d-none');
+            select.classList.remove('d-none');
+            select.focus();
+        });
+    });
+
+    document.querySelectorAll('.status-select').forEach(function(select) {
+        select.addEventListener('change', function() {
+            var itemId = this.getAttribute('data-item-id');
+            var status = this.value;
             
             fetch('/checklist/' + itemId + '/status', {
                 method: 'POST',
@@ -206,24 +209,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+
+        select.addEventListener('blur', function() {
+            var display = this.previousElementSibling;
+            this.classList.add('d-none');
+            display.classList.remove('d-none');
+        });
     });
 
-    document.querySelectorAll('.move-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var itemId = this.getAttribute('data-item-id');
-            var direction = this.getAttribute('data-direction');
-            
-            fetch('/checklist/' + itemId + '/move', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'direction=' + direction
-            }).then(function(response) {
-                if (response.ok) {
-                    window.location.reload();
-                }
-            });
+    document.querySelectorAll('.sortable-tbody').forEach(function(tbody) {
+        new Sortable(tbody, {
+            animation: 150,
+            handle: '.drag-handle',
+            onEnd: function(evt) {
+                var categoryId = tbody.getAttribute('data-category-id');
+                var itemIds = [];
+                tbody.querySelectorAll('tr').forEach(function(tr) {
+                    var itemId = tr.getAttribute('data-item-id');
+                    if (itemId) {
+                        itemIds.push(parseInt(itemId));
+                    }
+                });
+                
+                fetch('/checklist/reorder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        category_id: parseInt(categoryId),
+                        item_ids: itemIds
+                    })
+                });
+            }
         });
     });
 });
